@@ -1,0 +1,103 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+	<type name="MageDad\AdminBot\Model\Bot">
+        <arguments>
+            <argument name="searchModules" xsi:type="array">
+            	<item name="config" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Config</item>
+                    <item name="acl" xsi:type="string">Magento_Config::config</item>
+                </item>
+                <item name="customer" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Customer</item>
+                    <item name="acl" xsi:type="string">Magento_Customer::customer</item>
+                </item>
+                <item name="order" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Order</item>
+                    <item name="acl" xsi:type="string">Magento_Sales::sales</item>
+                </item>
+                <item name="invoice" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Invoice</item>
+                    <item name="acl" xsi:type="string">Magento_Sales::sales</item>
+                </item>
+                <item name="shipment" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Shipment</item>
+                    <item name="acl" xsi:type="string">Magento_Sales::sales</item>
+                </item>
+                <item name="creditmemo" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\CreditMemo</item>
+                    <item name="acl" xsi:type="string">Magento_Sales::sales</item>
+                </item>
+                <item name="page" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\CmsPages</item>
+                    <item name="acl" xsi:type="string">Magento_Cms::page</item>
+                </item>
+                <item name="block" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\CmsBlocks</item>
+                    <item name="acl" xsi:type="string">Magento_Cms::block</item>
+                </item>
+                <item name="product" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Catalog</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::catalog</item>
+                </item>
+                <item name="category" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Category</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::categories</item>
+                </item>
+                <item name="menu" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Menu</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::categories</item>
+                </item>
+                <item name="catalog_price_rule" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Marketing\CatalogPriceRule</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::categories</item>
+                </item>
+                <item name="cart_price_rule" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Marketing\CartPriceRule</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::categories</item>
+                </item>
+                <item name="email_templates" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Marketing\EmailTemplates</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::categories</item>
+                </item>
+                <item name="url_rewrites" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Marketing\URLRewrites</item>
+                    <item name="acl" xsi:type="string">Magento_Catalog::categories</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="MageDad\AdminBot\Model\Search\Config\Result\Builder">
+        <arguments>
+            <argument name="structureElementTypes" xsi:type="array">
+                <item name="section" xsi:type="object">Magento\Backend\Model\Search\Config\Structure\Element\Builder\Section</item>
+                <item name="group" xsi:type="object">Magento\Backend\Model\Search\Config\Structure\Element\Builder\Group</item>
+                <item name="field" xsi:type="object">Magento\Backend\Model\Search\Config\Structure\Element\Builder\Field</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="MageDad\AdminBot\Model\Bot">
+        <arguments>
+            <argument name="autoReplyEntity" xsi:type="array">
+                <item name="main_sales" xsi:type="object">MageDad\AdminBot\Model\Entity\Sales\MainSales</item>
+                <item name="order" xsi:type="object">MageDad\AdminBot\Model\Entity\Sales\Order</item>
+                <item name="invoice" xsi:type="object">MageDad\AdminBot\Model\Entity\Sales\Invoice</item>
+                <item name="shipment" xsi:type="object">MageDad\AdminBot\Model\Entity\Sales\Shipment</item>
+                <item name="creditmemo" xsi:type="object">MageDad\AdminBot\Model\Entity\Sales\CreditMemo</item>
+                <item name="main_catalog" xsi:type="object">MageDad\AdminBot\Model\Entity\MainCatalog</item>
+                <item name="main_customer" xsi:type="object">MageDad\AdminBot\Model\Entity\MainCustomers</item>
+                <item name="product" xsi:type="object">MageDad\AdminBot\Model\Entity\Product</item>
+                <item name="category" xsi:type="object">MageDad\AdminBot\Model\Entity\Category</item>
+                <item name="customer" xsi:type="object">MageDad\AdminBot\Model\Entity\Customer</item>
+                <item name="page" xsi:type="object">MageDad\AdminBot\Model\Entity\Content\CmsPage</item>
+                <item name="block" xsi:type="object">MageDad\AdminBot\Model\Entity\Content\CmsBlock</item>
+                <item name="config" xsi:type="object">MageDad\AdminBot\Model\Entity\Config</item>
+                <item name="menu" xsi:type="object">MageDad\AdminBot\Model\Entity\Menu</item>
+                <item name="main_marketing" xsi:type="object">MageDad\AdminBot\Model\Entity\Marketing\MainMarketing</item>
+                <item name="catalog_price_rule" xsi:type="object">MageDad\AdminBot\Model\Entity\Marketing\CatalogPriceRule</item>
+                <item name="cart_price_rule" xsi:type="object">MageDad\AdminBot\Model\Entity\Marketing\CartPriceRule</item>
+                <item name="email_templates" xsi:type="object">MageDad\AdminBot\Model\Entity\Marketing\EmailTemplates</item>
+                <item name="url_rewrites" xsi:type="object">MageDad\AdminBot\Model\Entity\Marketing\URLRewrites</item>
+            </argument>
+        </arguments>
+    </type>
+</config>
