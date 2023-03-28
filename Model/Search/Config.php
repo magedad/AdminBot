@@ -1,30 +1,21 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
  */
+declare(strict_types=1);
+
 namespace MageDad\AdminBot\Model\Search;
 
 use MageDad\AdminBot\Model\Search\Config\Result\Builder;
 use Magento\Config\Model\Config\Structure;
 use Magento\Config\Model\Config\Structure\Element\AbstractComposite;
 use Magento\Config\Model\Config\Structure\Element\Iterator as ElementIterator;
+use Magento\Framework\DataObject;
 
-/**
- * Search Config Model
- */
-class Config extends \Magento\Framework\DataObject
+class Config extends DataObject
 {
-    /**
-     * @var \Magento\Framework\App\Config\ConfigTypeInterface
-     */
-    private $configStructure;
-
-    /**
-     * @var Builder
-     */
-    private $resultBuilder;
-
     /**
      * @param Structure $configStructure
      * @param Builder $resultBuilder
@@ -36,16 +27,20 @@ class Config extends \Magento\Framework\DataObject
     }
 
     /**
+     * Set query
+     *
      * @param string $query
      * @return $this
      */
-    public function setQuery($query)
+    public function setQuery(string $query)
     {
         $this->setData('query', $query);
         return $this;
     }
 
     /**
+     * Get query
+     *
      * @return string|null
      */
     public function getQuery()
@@ -54,6 +49,8 @@ class Config extends \Magento\Framework\DataObject
     }
 
     /**
+     * Has query
+     *
      * @return bool
      */
     public function hasQuery()
@@ -62,6 +59,8 @@ class Config extends \Magento\Framework\DataObject
     }
 
     /**
+     * Set result
+     *
      * @param array $results
      * @return $this
      */
@@ -72,6 +71,8 @@ class Config extends \Magento\Framework\DataObject
     }
 
     /**
+     * Get result
+     *
      * @return array|null
      */
     public function getResults()
@@ -92,6 +93,8 @@ class Config extends \Magento\Framework\DataObject
     }
 
     /**
+     * Find in structure
+     *
      * @param ElementIterator $structureElementIterator
      * @param string $searchTerm
      * @param string $pathLabel

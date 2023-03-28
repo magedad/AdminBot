@@ -1,47 +1,34 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search;
 
-class CmsPages extends \Magento\Framework\DataObject
+use Magento\Backend\Model\UrlInterface;
+use Magento\Cms\Api\PageRepositoryInterface;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\DataObject;
+
+class CmsPages extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Cms\Api\PageRepositoryInterface
-     */
-    protected $pageRepository;
-
-    /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
-     */
-    protected $searchCriteriaBuilder;
-
-    /**
-     * @var \Magento\Framework\Api\FilterBuilder
-     */
-    protected $filterBuilder;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Cms\Api\PageRepositoryInterface $pageRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param UrlInterface $urlBuilder
+     * @param PageRepositoryInterface $pageRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
-        \Magento\Cms\Api\PageRepositoryInterface $pageRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Framework\Api\FilterBuilder $filterBuilder
+        UrlInterface $urlBuilder,
+        PageRepositoryInterface $pageRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->pageRepository = $pageRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
@@ -62,7 +49,7 @@ class CmsPages extends \Magento\Framework\DataObject
 
         $this->searchCriteriaBuilder->setCurrentPage($this->getStart());
         $this->searchCriteriaBuilder->setPageSize($this->getLimit());
-        $searchFields = ['title', 'content_heading', 'page_id' ,'identifier'];
+        $searchFields = ['title', 'content_heading', 'page_id', 'identifier'];
 
         if (is_numeric($this->getQuery())) {
             $searchFields = ['page_id'];
@@ -87,12 +74,15 @@ class CmsPages extends \Magento\Framework\DataObject
         $searchResults = $this->pageRepository->getList($searchCriteria);
 
         foreach ($searchResults->getItems() as $page) {
+            $extraInfo = [
+                'Enable' => $page->getIsActive() ? 'Yes' : 'No',
+                'URL Key' => $page->getIdentifier()
+            ];
             $result[] = [
-                'id' => 'customer/1/' . $page->getId(),
                 'type' => __('Page'),
                 'name' => $page->getTitle(),
-                'extraInfo' => $page->getTitle(),
-                'url' => $this->_adminhtmlData->getUrl('cms/page/edit', ['page_id' => $page->getId()]),
+                'extraInfo' => $extraInfo,
+                'url' => $this->urlBuilder->getUrl('cms/page/edit', ['page_id' => $page->getId()]),
             ];
         }
         $this->setResults($result);

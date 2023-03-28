@@ -1,16 +1,26 @@
 <?php
-
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity;
 
+use MageDad\AdminBot\Model\ReplyFormat;
+use Magento\Framework\UrlInterface;
+
+/*
+ * phpcs:disable Magento2.Translation.ConstantUsage
+ */
 class Category extends Entity
 {
     public const CATEGORY_QUERY = 'Category';
     public const ADD_CATEGORY_QUERY = 'Add category';
     public const EDIT_CATEGORY_QUERY = 'Edit/View Category';
     public const SEARCH_CATEGORY_QUERY = 'Search Categories';
-    public const TAKE_ACTION = 'action';
+
     public const SEARCH_WORDS = [
         self::CATEGORY_QUERY,
         self::ADD_CATEGORY_QUERY,
@@ -19,32 +29,62 @@ class Category extends Entity
         'Categories' // additional serch word
     ];
 
+    /**
+     * Constructor
+     *
+     * @param UrlInterface $urlBuilder
+     * @param ReplyFormat $replyFormat
+     */
     public function __construct(
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \MageDad\AdminBot\Model\ReplyFormat $replyFormat
+        UrlInterface $urlBuilder,
+        ReplyFormat $replyFormat
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->replyFormat = $replyFormat;
         parent::__construct();
     }
 
-    public function checkIsMyQuery($query)
+    /**
+     * Check Is My Query
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQuery(string $query)
     {
         $categoryAllQuery = array_map('strtolower', self::SEARCH_WORDS);
         return in_array(strtolower($query), $categoryAllQuery);
     }
 
-    public function checkIsMyQueryWithKeyword($query)
+    /**
+     * Check Is My Query With Keyword
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQueryWithKeyword(string $query)
     {
         return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
     }
 
-    public function cleanQuery($query)
+    /**
+     * Clean Query
+     *
+     * @param string $query
+     * @return string
+     */
+    public function cleanQuery(string $query)
     {
         return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
     }
 
-    public function getReply($query)
+    /**
+     * Get reply
+     *
+     * @param string $query
+     * @return array
+     */
+    public function getReply(string $query)
     {
         if (strtolower($query) == strtolower(self::CATEGORY_QUERY) || strtolower($query) == 'categories') {
             return $this->mainOption($query);
@@ -65,7 +105,13 @@ class Category extends Entity
         return [];
     }
 
-    private function mainOption($query)
+    /**
+     * MainOption
+     *
+     * @param string $query
+     * @return array
+     */
+    private function mainOption(string $query)
     {
         if (!$this->authorization->isAllowed('Magento_Catalog::categories')) {
             return [];
@@ -74,42 +120,32 @@ class Category extends Entity
         return $this->returnData(
             __('Please select relevant option.'),
             [
-                $this->returnData(__(self::ADD_CATEGORY_QUERY)),
+                $this->addCategory(),
                 $this->returnData(__(self::EDIT_CATEGORY_QUERY)),
                 $this->returnData(__(self::SEARCH_CATEGORY_QUERY)),
             ]
         );
     }
 
-    private function addCategory($query)
+    /**
+     * Add category
+     *
+     * @return array
+     */
+    private function addCategory()
     {
         return $this->returnData(
-            __('Click here for add new category.'),
-            '',
+            __(self::ADD_CATEGORY_QUERY),
+            [],
             $this->getCategoryCreateUrl(),
         );
     }
 
-    private function editCategory($query)
-    {
-       return $this->returnData(
-            __('Category {id/sku/name}'),
-            [],
-            '',
-            __('Category')." "
-       );
-    }
-
-    private function searchCategory($query)
-    {
-       return $this->returnData(
-            __('Category {name/description/sku/categoryId}'),
-            [],
-            '',
-            __('Categories')." "
-       );
-    }
-
+    /**
+     * Add category url
+     *
+     * @return mixed
+     */
     private function getCategoryCreateUrl()
     {
         return $this->urlBuilder->getUrl(
@@ -118,4 +154,35 @@ class Category extends Entity
         );
     }
 
+    /**
+     * Edit category
+     *
+     * @param string $query
+     * @return array
+     */
+    private function editCategory(string $query)
+    {
+        return $this->returnData(
+            $this->typeCommand(__('Category {id/sku/name}')),
+            [],
+            '',
+            __('Category'). " "
+        );
+    }
+
+    /**
+     * Search category
+     *
+     * @param string $query
+     * @return array
+     */
+    private function searchCategory(string $query)
+    {
+        return $this->returnData(
+            $this->typeCommand(__('Category {name/description/sku/categoryId}')),
+            [],
+            '',
+            __('Categories'). " "
+        );
+    }
 }

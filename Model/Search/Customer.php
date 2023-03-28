@@ -1,58 +1,53 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search;
 
-class Customer extends \Magento\Framework\DataObject
+use Magento\Backend\Model\UrlInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Helper\View;
+use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroup;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SortOrderBuilder;
+use Magento\Framework\DataObject;
+use Magento\Store\Model\StoreManagerInterface;
+
+class Customer extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
-     */
-    protected $customerRepository;
-
-    /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
-     */
-    protected $searchCriteriaBuilder;
-
-    /**
-     * @var \Magento\Framework\Api\FilterBuilder
-     */
-    protected $filterBuilder;
-
-    /**
-     * @var \Magento\Customer\Helper\View
-     */
-    protected $_customerViewHelper;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
-     * @param \Magento\Customer\Helper\View $customerViewHelper
+     * @param UrlInterface $urlBuilder
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param SortOrderBuilder $sortOrderBuilder
+     * @param FilterBuilder $filterBuilder
+     * @param View $customerViewHelper
+     * @param StoreManagerInterface $storeManager
+     * @param CustomerGroup $customerGroup
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Framework\Api\FilterBuilder $filterBuilder,
-        \Magento\Customer\Helper\View $customerViewHelper
+        UrlInterface $urlBuilder,
+        CustomerRepositoryInterface $customerRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        SortOrderBuilder $sortOrderBuilder,
+        FilterBuilder $filterBuilder,
+        View $customerViewHelper,
+        StoreManagerInterface $storeManager,
+        CustomerGroup $customerGroup
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->customerRepository = $customerRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->sortOrderBuilder = $sortOrderBuilder;
         $this->filterBuilder = $filterBuilder;
         $this->_customerViewHelper = $customerViewHelper;
+        $this->customerGroup = $customerGroup;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -79,22 +74,54 @@ class Customer extends \Magento\Framework\DataObject
                 ->setValue($this->getQuery() . '%')
                 ->create();
         }
-        $this->searchCriteriaBuilder->addFilters($filters);
+        $sortOrder = $this->sortOrderBuilder->setField('entity_id')->setDirection('DESC')->create();
+        $this->searchCriteriaBuilder->addFilters($filters)->setSortOrders([$sortOrder]);
         $searchCriteria = $this->searchCriteriaBuilder->create();
         $searchResults = $this->customerRepository->getList($searchCriteria);
-
+        $customerGroup = $this->getCustomerGroups();
         foreach ($searchResults->getItems() as $customer) {
-            $extraInfo = ['Email' => $customer->getEmail(), "Customer Id" => $customer->getId()];
+            $extraInfo = [
+                "Customer group" => $customerGroup[$customer->getGroupId()],
+                "Name" => $customer->getFirstname() . " " . $customer->getLastname(),
+                "Account Created in" => $this->getCreatedInStore($customer->getStoreId()),
+            ];
             $result[] = [
-                'id' => 'customer/1/' . $customer->getId(),
                 'type' => __('Customer'),
                 'name' => $this->_customerViewHelper->getCustomerName($customer),
                 'subtitle' => $customer->getEmail(),
                 'extraInfo' => $extraInfo,
-                'url' => $this->_adminhtmlData->getUrl('customer/index/edit', ['id' => $customer->getId()]),
+                'url' => $this->urlBuilder->getUrl('customer/index/edit', ['id' => $customer->getId()]),
             ];
         }
         $this->setResults($result);
         return $this;
+    }
+
+    /**
+     * Get customer group
+     *
+     * @return array
+     */
+    public function getCustomerGroups(): array
+    {
+        $customerGroups = $this->customerGroup->toOptionArray();
+        $groups = [];
+        foreach ($customerGroups as $key => $group) {
+            $groups[$group['value']] = $group['label'];
+        }
+        return $groups;
+    }
+
+    /**
+     * Retrieve store
+     *
+     * @param string $storeId
+     * @return mixed
+     */
+    public function getCreatedInStore(string $storeId)
+    {
+        return $this->storeManager->getStore(
+            $storeId
+        )->getName();
     }
 }

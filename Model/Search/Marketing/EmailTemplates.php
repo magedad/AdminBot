@@ -1,39 +1,29 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search\Marketing;
 
+use Magento\Backend\Model\UrlInterface;
 use Magento\Email\Model\ResourceModel\Template\CollectionFactory as EmailTemplateCollectionFactory;
+use Magento\Framework\DataObject;
 
-
-class EmailTemplates extends \Magento\Framework\DataObject
+class EmailTemplates extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Customer\Helper\View
-     */
-    protected $_customerViewHelper;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param UrlInterface $urlBuilder
+     * @param EmailTemplateCollectionFactory $collectionFactory
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
+        UrlInterface $urlBuilder,
         EmailTemplateCollectionFactory $collectionFactory
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->collectionFactory = $collectionFactory;
     }
 
@@ -58,14 +48,15 @@ class EmailTemplates extends \Magento\Framework\DataObject
             $collection->addFieldToFilter('template_code', ['like' => '%' . $this->getQuery() . '%']);
         }
 
-        #echo $collection->getSelect()->__toString();die();
         foreach ($collection as $emailTemplates) {
             $result[] = [
-                'id' => 'emailTemplates/1/' . $emailTemplates->getId(),
                 'type' => __('Email Templates'),
                 'name' => $emailTemplates->getTemplateCode(),
                 'extraInfo' => [],
-                'url' => $this->_adminhtmlData->getUrl('adminhtml/email_template/edit', ['id' => $emailTemplates->getTemplateId()]),
+                'url' => $this->urlBuilder->getUrl(
+                    'adminhtml/email_template/edit',
+                    ['id' => $emailTemplates->getTemplateId()]
+                ),
             ];
         }
 

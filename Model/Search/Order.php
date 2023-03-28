@@ -1,41 +1,36 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
  */
+declare(strict_types=1);
+
 namespace MageDad\AdminBot\Model\Search;
 
-/**
- * Search Order Model
- *
- * @author      Magento Core Team <core@magentocommerce.com>
- * @api
- * @since 100.0.2
- */
-class Order extends \Magento\Framework\DataObject
+use Magento\Backend\Model\UrlInterface;
+use Magento\Framework\DataObject;
+use Magento\Framework\Pricing\Helper\Data;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
+
+class Order extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $adminhtmlData = null;
-
-    /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\CollectionFactory
-     */
-    protected $collectionFactory;
-
-    /**
-     * @param \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $collectionFactory
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
+     * @param CollectionFactory $collectionFactory
+     * @param UrlInterface $urlBuilder
+     * @param Data $priceHelper
      */
     public function __construct(
-        \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $collectionFactory,
-        \Magento\Backend\Helper\Data $adminhtmlData
+        CollectionFactory $collectionFactory,
+        OrderRepositoryInterface $orderRepository,
+        UrlInterface $urlBuilder,
+        Data $priceHelper
     ) {
         $this->collectionFactory = $collectionFactory;
-        $this->adminhtmlData = $adminhtmlData;
+        $this->orderRepository = $orderRepository;
+        $this->urlBuilder = $urlBuilder;
+        $this->priceHelper = $priceHelper;
     }
 
     /**
@@ -54,37 +49,48 @@ class Order extends \Magento\Framework\DataObject
         $query = $this->getQuery();
 
         //TODO: add full name logic
-        $collection = $this->collectionFactory->create()->addAttributeToSelect(
-            '*' /* TODO: Improve it get only needed data */
-        )->addAttributeToSearchFilter(
-            [
-                ['attribute' => 'increment_id', 'like' => $query . '%'],
-                ['attribute' => 'customer_firstname ', 'like' =>'%'. $query . '%'],
-                ['attribute' => 'customer_email ', 'like' => $query . '%'],
-                ['attribute' => 'billing_firstname', 'like' => $query . '%'],
-                ['attribute' => 'billing_lastname', 'like' => $query . '%'],
-                ['attribute' => 'billing_telephone', 'like' => $query . '%'],
-                ['attribute' => 'billing_postcode', 'like' => $query . '%'],
-                ['attribute' => 'shipping_firstname', 'like' => $query . '%'],
-                ['attribute' => 'shipping_lastname', 'like' => $query . '%'],
-                ['attribute' => 'shipping_telephone', 'like' => $query . '%'],
-                ['attribute' => 'shipping_postcode', 'like' => $query . '%'],
-            ]
-        )->setCurPage(
-            $this->getStart()
-        )->setPageSize(
-            $this->getLimit()
-        )->setOrder(
-            'entity_id','DESC'
-        )->load();
+        $collection = $this->collectionFactory->create()
+            ->addAttributeToSelect('entity_id')
+            ->addAttributeToSearchFilter(
+                [
+                    ['attribute' => 'increment_id', 'like' => $query . '%'],
+                    ['attribute' => 'customer_firstname ', 'like' => '%' . $query . '%'],
+                    ['attribute' => 'customer_lastname ', 'like' => '%' . $query . '%'],
+                    ['attribute' => 'customer_email ', 'like' => $query . '%'],
+                    ['attribute' => 'billing_firstname', 'like' => $query . '%'],
+                    ['attribute' => 'billing_lastname', 'like' => $query . '%'],
+                    ['attribute' => 'billing_telephone', 'like' => $query . '%'],
+                    ['attribute' => 'billing_postcode', 'like' => $query . '%'],
+                    ['attribute' => 'shipping_firstname', 'like' => $query . '%'],
+                    ['attribute' => 'shipping_lastname', 'like' => $query . '%'],
+                    ['attribute' => 'shipping_telephone', 'like' => $query . '%'],
+                    ['attribute' => 'shipping_postcode', 'like' => $query . '%'],
+                ]
+            )->setCurPage(
+                $this->getStart()
+            )->setPageSize(
+                $this->getLimit()
+            )->setOrder(
+                'entity_id',
+                'DESC'
+            )->load();
 
         foreach ($collection as $order) {
+            $order = $this->orderRepository->get($order->getEntityId());
+            $extraInfo = [
+                'Customer Name' => $order->getCustomerFirstname() . ' ' . $order->getCustomerLastname(),
+                'Email' => $order->getCustomerEmail(),
+                'Subtotal' => $this->priceHelper->currency($order->getSubtotal()),
+                'Grand Total' => $this->priceHelper->currency($order->getGrandTotal()),
+                'Created At' => $order->getCreatedAt(),
+                'Status' => $order->getStatus()
+            ];
+
             $result[] = [
-                'id' => 'order/1/' . $order->getId(),
                 'type' => __('Order'),
                 'name' => __('Order #%1', $order->getIncrementId()),
-                'extraInfo' => $order->getFirstname() . ' ' . $order->getLastname(),
-                'url' => $this->adminhtmlData->getUrl('sales/order/view', ['order_id' => $order->getId()]),
+                'extraInfo' => $extraInfo,
+                'url' => $this->urlBuilder->getUrl('sales/order/view', ['order_id' => $order->getId()]),
             ];
         }
 

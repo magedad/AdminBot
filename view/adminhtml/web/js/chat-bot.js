@@ -18,10 +18,10 @@ define([
      * @private
      */
     _create: function () {
-      this._initiateLibrary();
+      this._initiateChatBot();
     },
 
-    _initiateLibrary: function() {
+    _initiateChatBot: function() {
         var $this = this;
         var $element = this.element;
         var $options = this.options;
@@ -43,6 +43,10 @@ define([
                 $this.submitMessage($(this).val());
                 $(this).val('');
             }
+        });
+        $element.find('.view-more').off().on("click", function(e){
+             $(this).parent().toggleClass('expanded');
+             $(this).remove();
         });
         $($options.autoSuggestClass).off().on("click", function(e){
             var msg = '<span class="chat-msg-item chat-msg-item_user">'+ $(this).text() +'</span>';
@@ -96,12 +100,22 @@ define([
 
         $element.find(".chat-converse").append(replay);
         if (data.options.length) {
-            console.log('data.options');
-            console.log(data.options);
             var replay = '<span class="chat-msg-item chat-msg-item-tags"><ul class="tags">';
             $.each(data.options, function (i, option) {
                 if (option.title != "" && option.url == '') {
-                  replay = replay + '<li class="auto-suggest">'+option.title+'</li>';
+                  replay = replay + '<li class="auto-suggest">';
+                  replay = replay + option.title;
+
+                  if (option.extraInfo != '' && option.extraInfo instanceof Object) {
+                    replay = replay + '<div class="extra-info">';
+                    replay = replay + '<a href="javascript:void(0)" class="view-more">View more</a>';
+                    $.each(option.extraInfo, function (j, value) {
+                        replay = replay + '<div>'+key+': '+value+'</div>';
+                    });
+                    replay = replay + '</div>';
+                  }
+
+                  replay = replay + '</li>';
                 }
 
                 if (option.title !="" && option.url != '') {
@@ -110,6 +124,15 @@ define([
                     if (typeof option.subtitle !== undefined && option.subtitle) {
                         replay = replay + '<div class="subtitle">'+option.subtitle+'</div>';
                     }
+                    if (option.extraInfo != '' && option.extraInfo instanceof Object) {
+                        replay = replay + '<div class="extra-info">';
+                        replay = replay + '<a href="javascript:void(0)" class="view-more">View more</a>';
+                        $.each(option.extraInfo, function (key, value) {
+                            replay = replay + '<div>'+key+': '+value+'</div>';
+                        });
+                        replay = replay + '</div>';
+                    }
+
                     replay = replay + '</li>';
                 }
             });
@@ -124,7 +147,7 @@ define([
         }
 
         $element.find(".chat-converse").scrollTop($(".chat-converse")[0].scrollHeight);
-        this._initiateLibrary();
+        this._initiateChatBot();
     }
 
   });

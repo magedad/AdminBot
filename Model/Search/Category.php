@@ -1,47 +1,34 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search;
 
-class Category extends \Magento\Framework\DataObject
+use Magento\Backend\Model\UrlInterface;
+use Magento\Catalog\Api\CategoryListInterface;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\DataObject;
+
+class Category extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Cms\Api\CategoryListInterface
-     */
-    protected $categoryRepository;
-
-    /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
-     */
-    protected $searchCriteriaBuilder;
-
-    /**
-     * @var \Magento\Framework\Api\FilterBuilder
-     */
-    protected $filterBuilder;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Catalog\Api\CategoryListInterface $categoryRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param UrlInterface $urlBuilder
+     * @param CategoryListInterface $categoryRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
-        \Magento\Catalog\Api\CategoryListInterface $categoryRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Framework\Api\FilterBuilder $filterBuilder
+        UrlInterface $urlBuilder,
+        CategoryListInterface $categoryRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->categoryRepository = $categoryRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
@@ -87,11 +74,10 @@ class Category extends \Magento\Framework\DataObject
 
         foreach ($searchResults->getItems() as $category) {
             $result[] = [
-                'id' => 'category/1/' . $category->getId(),
                 'type' => __('Category'),
-                'name' => 'Category - ' .$category->getName(),
+                'name' => 'Category - ' . $category->getName(),
                 'extraInfo' => $category->getName(),
-                'url' => $this->_adminhtmlData->getUrl('catalog/category/edit', ['id' => $category->getId()]),
+                'url' => $this->urlBuilder->getUrl('catalog/category/edit', ['id' => $category->getId()]),
             ];
         }
         $this->setResults($result);

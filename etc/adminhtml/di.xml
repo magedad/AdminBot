@@ -11,6 +11,10 @@
                     <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Customer</item>
                     <item name="acl" xsi:type="string">Magento_Customer::customer</item>
                 </item>
+                <item name="customer_group" xsi:type="array">
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\CustomerGroup</item>
+                    <item name="acl" xsi:type="string">Magento_Customer::group</item>
+                </item>
                 <item name="order" xsi:type="array">
                     <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Order</item>
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
@@ -88,6 +92,7 @@
                 <item name="product" xsi:type="object">MageDad\AdminBot\Model\Entity\Product</item>
                 <item name="category" xsi:type="object">MageDad\AdminBot\Model\Entity\Category</item>
                 <item name="customer" xsi:type="object">MageDad\AdminBot\Model\Entity\Customer</item>
+                <item name="customer_group" xsi:type="object">MageDad\AdminBot\Model\Entity\CustomerGroup</item>
                 <item name="page" xsi:type="object">MageDad\AdminBot\Model\Entity\Content\CmsPage</item>
                 <item name="block" xsi:type="object">MageDad\AdminBot\Model\Entity\Content\CmsBlock</item>
                 <item name="config" xsi:type="object">MageDad\AdminBot\Model\Entity\Config</item>

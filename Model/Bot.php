@@ -1,4 +1,10 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
+declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model;
 
@@ -6,9 +12,18 @@ use Magento\Backend\App\Action\Context;
 
 class Bot
 {
-    public $queryFor = '';
     /**
-     * @inheritDoc
+     * @var array
+     */
+    public $queryFor = [];
+
+    /**
+     * Construct
+     *
+     * @param Context $context
+     * @param ReplyFormat $replyFormat
+     * @param array $searchModules
+     * @param array $autoReplyEntity
      */
     public function __construct(
         Context $context,
@@ -23,7 +38,13 @@ class Bot
         $this->objectManager = $context->getObjectManager();
     }
 
-    public function getReplyForMessage($msg)
+    /**
+     * Get reply for message
+     *
+     * @param string $msg
+     * @return array|string
+     */
+    public function getReplyForMessage(string $msg)
     {
         $response = [];
         if ($msg != '') {
@@ -46,7 +67,35 @@ class Bot
         return $this->replyFormat->returnData('Opps, can you please try something else.');
     }
 
-    private function globalSearch($query)
+    /**
+     * Get auto reply
+     *
+     * @param string $query
+     * @return array
+     */
+    private function getAutoReply(string $query)
+    {
+        foreach ($this->autoReplyEntity as $type => $object) {
+            if ($object->checkIsMyQuery($query)) {
+                $reply = $object->getReply($query);
+                if (empty($reply)) {
+                    return $this->replyFormat->returnData(
+                        __('Opps, can you please try something else. Maybe you search for restricted are.')
+                    );
+                }
+                return $reply;
+            }
+        }
+        return [];
+    }
+
+    /**
+     * Global search
+     *
+     * @param string $query
+     * @return array
+     */
+    private function globalSearch(string $query)
     {
         $items = [];
         $originalQuery = $query;
@@ -67,10 +116,17 @@ class Bot
         return $items;
     }
 
-    private function search($msg, $type = null)
+    /**
+     * Search
+     *
+     * @param string $msg
+     * @param string $type
+     * @return array
+     */
+    private function search(string $msg, string $type = null)
     {
         $items = [];
-        foreach ($this->searchModules as $key =>  $searchConfig) {
+        foreach ($this->searchModules as $key => $searchConfig) {
 
             if ($type != null && $type != $key) {
                 continue;
@@ -117,7 +173,7 @@ class Bot
 
         if (count($data) > 0) {
             return $this->replyFormat->returnData(
-                $type ? __('We found below %1 data', $type) : __('We found below data.'),
+                __('We found below data.'),
                 $data
             );
         }
@@ -125,20 +181,11 @@ class Bot
         return [];
     }
 
-    private function getAutoReply($query)
-    {
-        foreach ($this->autoReplyEntity as $type => $object) {
-            if ($object->checkIsMyQuery($query)) {
-                $reply = $object->getReply($query);
-                if (empty($reply)) {
-                    return $this->replyFormat->returnData('Opps, can you please try something else. Maybe you search for restricted are.');
-                }
-                return $reply;
-            }
-        }
-        return [];
-    }
-
+    /**
+     * Get Predefined words
+     *
+     * @return mixed
+     */
     public function getPredefinedWords()
     {
         $words = [];
@@ -149,5 +196,4 @@ class Bot
         asort($words);
         return $words;
     }
-
 }

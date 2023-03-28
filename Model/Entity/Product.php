@@ -1,16 +1,28 @@
 <?php
-
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity;
 
+use MageDad\AdminBot\Model\ReplyFormat;
+use Magento\Catalog\Model\Product\TypeFactory;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Framework\UrlInterface;
+
+/*
+ * phpcs:disable Magento2.Translation.ConstantUsage
+ */
 class Product extends Entity
 {
     public const PRODUCT_QUERY = 'Product';
     public const ADD_PRODUCT_QUERY = 'Add product';
     public const EDIT_PRODUCT_QUERY = 'Edit/View Product';
     public const SEARCH_PRODUCT_QUERY = 'Search Products';
-    public const TAKE_ACTION = 'action';
+
     public const SEARCH_WORDS = [
         self::PRODUCT_QUERY,
         self::ADD_PRODUCT_QUERY,
@@ -19,11 +31,19 @@ class Product extends Entity
         'products' // additional serch word
     ];
 
+    /**
+     * Construct
+     *
+     * @param TypeFactory $typeFactory
+     * @param ProductFactory $productFactory
+     * @param UrlInterface $urlBuilder
+     * @param ReplyFormat $replyFormat
+     */
     public function __construct(
-        \Magento\Catalog\Model\Product\TypeFactory $typeFactory,
-        \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \MageDad\AdminBot\Model\ReplyFormat $replyFormat
+        TypeFactory $typeFactory,
+        ProductFactory $productFactory,
+        UrlInterface $urlBuilder,
+        ReplyFormat $replyFormat
     ) {
         $this->productFactory = $productFactory;
         $this->typeFactory = $typeFactory;
@@ -32,23 +52,47 @@ class Product extends Entity
         parent::__construct();
     }
 
-    public function checkIsMyQuery($query)
+    /**
+     * Check Is My Query
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQuery(string $query)
     {
         $productAllQuery = array_map('strtolower', self::SEARCH_WORDS);
         return in_array(strtolower($query), $productAllQuery);
     }
 
-    public function checkIsMyQueryWithKeyword($query)
+    /**
+     * Check Is My Query With Keyword
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQueryWithKeyword(string $query)
     {
         return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
     }
 
-    public function cleanQuery($query)
+    /**
+     * Clean Query
+     *
+     * @param string $query
+     * @return string
+     */
+    public function cleanQuery(string $query)
     {
         return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
     }
 
-    public function getReply($query)
+    /**
+     * Get reply
+     *
+     * @param string $query
+     * @return array
+     */
+    public function getReply(string $query)
     {
         if (strtolower($query) == strtolower(self::PRODUCT_QUERY) || strtolower($query) == 'products') {
             return $this->mainOption($query);
@@ -69,7 +113,13 @@ class Product extends Entity
         return [];
     }
 
-    private function mainOption($query)
+    /**
+     * MainOption
+     *
+     * @param string $query
+     * @return array
+     */
+    private function mainOption(string $query)
     {
         if (!$this->authorization->isAllowed('Magento_Catalog::products')) {
             return [];
@@ -85,7 +135,13 @@ class Product extends Entity
         );
     }
 
-    private function addProduct($query)
+    /**
+     * Add product
+     *
+     * @param string $query
+     * @return array
+     */
+    private function addProduct(string $query)
     {
         $types = $this->typeFactory->create()->getTypes();
         uasort(
@@ -109,31 +165,49 @@ class Product extends Entity
         );
     }
 
-    private function editProduct($query)
-    {
-       return $this->returnData(
-            __('Product {id/sku/name}'),
-            [],
-            '',
-            __('Product')." "
-       );
-    }
-
-    private function searchProduct($query)
-    {
-       return $this->returnData(
-            __('Product {name/description/sku/productId}'),
-            [],
-            '',
-            __('Products')." "
-       );
-    }
-
-    private function getProductCreateUrl($type)
+    /**
+     * Get product create url
+     *
+     * @param string $type
+     * @return mixed
+     */
+    private function getProductCreateUrl(string $type)
     {
         return $this->urlBuilder->getUrl(
             'catalog/product/new',
             ['set' => $this->productFactory->create()->getDefaultAttributeSetId(), 'type' => $type, '_secure' => true]
+        );
+    }
+
+    /**
+     * Edit product
+     *
+     * @param string $query
+     * @return array
+     */
+    private function editProduct(string $query)
+    {
+        return $this->returnData(
+            $this->typeCommand(__('Product {id/sku/name}')),
+            [],
+            '',
+            __('Product') . " "
+        );
+    }
+
+    /**
+     * Search product
+     *
+     * @param string $query
+     * @return array
+     */
+    private function searchProduct(string $query)
+    {
+        return $this->returnData(
+            $this->typeCommand(__('Product {name/description/sku/productId}')),
+            [],
+            '',
+            __('Products') . " "
         );
     }
 }

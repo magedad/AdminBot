@@ -1,4 +1,9 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 
 namespace MageDad\AdminBot\Model\Search\Config\Result;
 
@@ -38,6 +43,8 @@ class Builder
     }
 
     /**
+     * Get all
+     *
      * @return array
      */
     public function getAll()
@@ -46,6 +53,8 @@ class Builder
     }
 
     /**
+     * Add
+     *
      * @param StructureElementInterface $structureElement
      * @param string $elementPathLabel
      * @return void

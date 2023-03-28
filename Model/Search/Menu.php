@@ -1,4 +1,10 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
+declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search;
 
@@ -6,26 +12,12 @@ use Magento\Backend\Model\Menu\Config as MenuConfig;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\DataObject;
 
+/**
+ * phpcs:disable Magento2.Performance.ForeachArrayMerge
+ */
 class Menu extends DataObject
 {
     /**
-     * @var MenuConfig
-     */
-    private $menuConfig;
-
-    /**
-     * @var UrlInterface
-     */
-    private $url;
-
-    /**
-     * @var string
-     */
-    private $delimiter = ' → ';
-
-    /**
-     * Menu constructor.
-     *
      * @param MenuConfig $menuConfig
      * @param UrlInterface $url
      * @param array $data
@@ -41,6 +33,8 @@ class Menu extends DataObject
     }
 
     /**
+     * Load search results
+     *
      * @return $this
      * @throws \Exception
      */
@@ -66,8 +60,9 @@ class Menu extends DataObject
     }
 
     /**
-     * @param $q
+     * Search
      *
+     * @param string $q
      * @return array
      * @throws \Exception
      */
@@ -75,7 +70,7 @@ class Menu extends DataObject
     {
         $queryParts = explode(' ', $q);
         $menuItems = $this->getFlatStructure();
-        $foundItems = array_filter($menuItems, function($arr) use ($queryParts) {
+        $foundItems = array_filter($menuItems, function ($arr) use ($queryParts) {
             foreach ($queryParts as $part) {
                 if (stripos($arr['name'], $part) === false) {
                     return false;
@@ -87,6 +82,8 @@ class Menu extends DataObject
     }
 
     /**
+     * Get Flat Structure
+     *
      * @return array
      * @throws \Exception
      */
@@ -98,7 +95,7 @@ class Menu extends DataObject
         $result = [];
         $collector = [];
         $resultCount = 0;
-        $recursive = function($n, $collector) use (&$recursive, &$result, &$resultCount) {
+        $recursive = function ($n, $collector) use (&$recursive, &$result, &$resultCount) {
             foreach ($n as $item) {
                 if (!$item->isAllowed() || $item->getId() == 'Magento_Marketplace::partners') {
                     continue;

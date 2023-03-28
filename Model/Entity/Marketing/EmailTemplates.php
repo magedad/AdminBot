@@ -1,14 +1,20 @@
 <?php
 /**
- * Copyright ©  All rights reserved.
- * See COPYING.txt for license details.
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
  */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity\Marketing;
 
 use MageDad\AdminBot\Model\Entity\Entity;
+use MageDad\AdminBot\Model\ReplyFormat;
+use Magento\Framework\UrlInterface;
 
+/*
+ * phpcs:disable Magento2.Translation.ConstantUsage
+ */
 class EmailTemplates extends Entity
 {
     public const EMAILTEMPLATES_QUERY = 'Email Template';
@@ -20,32 +26,62 @@ class EmailTemplates extends Entity
         'Email Templates', // additional serch word
     ];
 
+    /**
+     * Construct
+     *
+     * @param UrlInterface $urlBuilder
+     * @param ReplyFormat $replyFormat
+     */
     public function __construct(
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \MageDad\AdminBot\Model\ReplyFormat $replyFormat
+        UrlInterface $urlBuilder,
+        ReplyFormat $replyFormat
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->replyFormat = $replyFormat;
         parent::__construct();
     }
 
-    public function checkIsMyQuery($query)
+    /**
+     * Check Is My Query
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQuery(string $query)
     {
         $emailTemplateAllQuery = array_map('strtolower', self::SEARCH_WORDS);
         return in_array(strtolower($query), $emailTemplateAllQuery) || in_array($query, $emailTemplateAllQuery);
     }
 
-    public function checkIsMyQueryWithKeyword($query)
+    /**
+     * Check Is My Query With Keyword
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQueryWithKeyword(string $query)
     {
         return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
     }
 
-    public function cleanQuery($query)
+    /**
+     * Clean Query
+     *
+     * @param string $query
+     * @return string
+     */
+    public function cleanQuery(string $query)
     {
         return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
     }
 
-    public function getReply($query)
+    /**
+     * Get reply
+     *
+     * @param string $query
+     * @return array
+     */
+    public function getReply(string $query)
     {
         if (!$this->authorization->isAllowed('Magento_Email::template')) {
             return [];
@@ -62,23 +98,34 @@ class EmailTemplates extends Entity
         return [];
     }
 
-    public function emailTemplate($query)
+    /**
+     * Email Template
+     *
+     * @param string $query
+     * @return array
+     */
+    public function emailTemplate(string $query)
     {
         return $this->returnData(
             __('Please select relevant option.'),
             [
-                $this->addCustomer($query),
+                $this->addEmailTemplate(),
                 $this->returnData(__(self::SEARCH_EMAILTEMPLATES_QUERY)),
             ]
         );
     }
 
-    public function addCustomer($query)
+    /**
+     * Add Email Template
+     *
+     * @return array
+     */
+    private function addEmailTemplate()
     {
         $customerUrl = $this->urlBuilder->getUrl(
-                'adminhtml/email_template/new',
-                ['_secure' => true]
-            );
+            'adminhtml/email_template/new',
+            ['_secure' => true]
+        );
         return $this->returnData(
             __(self::ADD_EMAILTEMPLATES_QUERY),
             [],
@@ -86,13 +133,19 @@ class EmailTemplates extends Entity
         );
     }
 
-    public function searchEmailTemplate($query)
+    /**
+     * Search Email Template
+     *
+     * @param string $query
+     * @return array
+     */
+    private function searchEmailTemplate(string $query)
     {
-       return $this->returnData(
-            __('Email Templates {Name/ID}'),
+        return $this->returnData(
+            $this->typeCommand(__('Email Templates {Name/ID}')),
             [],
             '',
-            __('Email Templates')." "
-       );
+            __('Email Templates') . " "
+        );
     }
 }

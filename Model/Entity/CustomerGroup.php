@@ -6,9 +6,8 @@
  */
 declare(strict_types=1);
 
-namespace MageDad\AdminBot\Model\Entity\Sales;
+namespace MageDad\AdminBot\Model\Entity;
 
-use MageDad\AdminBot\Model\Entity\Entity;
 use MageDad\AdminBot\Model\ReplyFormat;
 use Magento\Catalog\Model\Product\TypeFactory;
 use Magento\Catalog\Model\ProductFactory;
@@ -17,17 +16,16 @@ use Magento\Framework\UrlInterface;
 /*
  * phpcs:disable Magento2.Translation.ConstantUsage
  */
-class CreditMemo extends Entity
+class CustomerGroup extends Entity
 {
-    public const SHIPMENT_QUERY = 'Creditmemo';
+    public const MENU_QUERY = 'Customer Group';
     public const SEARCH_WORDS = [
-        self::SHIPMENT_QUERY,
-        'creditmemos' // additional serch word
+        self::MENU_QUERY,
+        'Customers Group',
+        'Customers Groups'
     ];
 
     /**
-     * Construct
-     *
      * @param TypeFactory $typeFactory
      * @param ProductFactory $productFactory
      * @param UrlInterface $urlBuilder
@@ -54,8 +52,8 @@ class CreditMemo extends Entity
      */
     public function checkIsMyQuery(string $query)
     {
-        $productAllQuery = array_map('strtolower', self::SEARCH_WORDS);
-        return in_array(strtolower($query), $productAllQuery) || in_array($query, $productAllQuery);
+        $menuAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        return in_array(strtolower($query), $menuAllQuery) || in_array($query, $menuAllQuery);
     }
 
     /**
@@ -88,11 +86,7 @@ class CreditMemo extends Entity
      */
     public function getReply(string $query)
     {
-        if (!$this->authorization->isAllowed('Magento_Sales::creditmemo')) {
-            return [];
-        }
-
-        if (strtolower($query) == strtolower(self::SHIPMENT_QUERY) || strtolower($query) == 'creditmemos') {
+        if (strtolower($query) == strtolower(self::MENU_QUERY) || strtolower($query) == 'menus') {
             return $this->mainOption($query);
         }
 
@@ -100,18 +94,18 @@ class CreditMemo extends Entity
     }
 
     /**
-     * Search creditmemo
+     * Search Menu
      *
      * @param string $query
      * @return array
      */
-    public function mainOption(string $query): array
+    public function mainOption(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('Creditmemo {Incrment Id/Customer email/Customer Name}')),
+            $this->typeCommand(__('Customer group {Name/Id}')),
             [],
             '',
-            __('Creditmemo') . " "
+            __('Customer group'). " "
         );
     }
 }

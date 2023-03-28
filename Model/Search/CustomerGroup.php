@@ -9,29 +9,29 @@ declare(strict_types=1);
 namespace MageDad\AdminBot\Model\Search;
 
 use Magento\Backend\Model\UrlInterface;
-use Magento\Cms\Api\BlockRepositoryInterface;
+use Magento\Customer\Api\GroupRepositoryInterface;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DataObject;
 
-class CmsBlocks extends DataObject
+class CustomerGroup extends DataObject
 {
     /**
      * Initialize dependencies.
      *
      * @param UrlInterface $urlBuilder
-     * @param BlockRepositoryInterface $blockRepository
+     * @param GroupRepositoryInterface $groupRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
      */
     public function __construct(
         UrlInterface $urlBuilder,
-        BlockRepositoryInterface $blockRepository,
+        GroupRepositoryInterface $groupRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         FilterBuilder $filterBuilder
     ) {
         $this->urlBuilder = $urlBuilder;
-        $this->blockRepository = $blockRepository;
+        $this->groupRepository = $groupRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
     }
@@ -51,16 +51,16 @@ class CmsBlocks extends DataObject
 
         $this->searchCriteriaBuilder->setCurrentPage($this->getStart());
         $this->searchCriteriaBuilder->setPageSize($this->getLimit());
-        $searchFields = ['title', 'identifier'];
+        $searchFields = ['customer_group_code'];
         if (is_numeric($this->getQuery())) {
-            $searchFields = ['block_id'];
+            $searchFields = ['customer_group_id'];
         }
 
         $filters = [];
         foreach ($searchFields as $field) {
 
             $value = '%' . $this->getQuery() . '%';
-            if ($field == 'block_id') {
+            if ($field == 'customer_group_id') {
                 $value = $this->getQuery();
             }
 
@@ -72,18 +72,14 @@ class CmsBlocks extends DataObject
         }
         $this->searchCriteriaBuilder->addFilters($filters);
         $searchCriteria = $this->searchCriteriaBuilder->create();
-        $searchResults = $this->blockRepository->getList($searchCriteria);
+        $searchResults = $this->groupRepository->getList($searchCriteria);
 
-        foreach ($searchResults->getItems() as $block) {
-            $extraInfo = [
-                'Enable' => $block->getIsActive() ? 'Yes' : 'No',
-                'URL Key' => $block->getIdentifier()
-            ];
+        foreach ($searchResults->getItems() as $group) {
             $result[] = [
                 'type' => __('Page'),
-                'name' => $block->getTitle(),
-                'extraInfo' => $extraInfo,
-                'url' => $this->urlBuilder->getUrl('cms/block/edit', ['block_id' => $block->getId()]),
+                'name' => $group->getCode(),
+                'extraInfo' => [],
+                'url' => $this->urlBuilder->getUrl->getUrl('customer/group/edit', ['id' => $group->getId()]),
             ];
         }
         $this->setResults($result);

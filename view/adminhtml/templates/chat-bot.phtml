@@ -1,30 +1,44 @@
+<?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
+
+use Magento\Framework\Escaper;
+
+/**
+ * @var $block MageDad\AdminBot\Block\Adminhtml\ChatBot
+ * @var $escaper Escaper
+ */
+?>
+
 <?php if ($block->isAllowed()): ?>
-<div class="fabs" id="md-chatbox">
+<div class="fabs md-chatbox" id="md-chatbox">
     <div class="chat">
         <div class="chat-header">
             <div class="chat-option">
                 <div class="header-img">
-                    <img src="<?= $block->getViewFileUrl('MageDad_AdminBot::img/bot.png'); ?>"/>
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('MageDad_AdminBot::img/bot.png')); ?>"/>
                 </div>
                 <span id="chat-head">Admin Chatbot</span>
-                <span id="chat-fullscreen-loader" class="chat-fullscreen-loader"><i class="fullscreen zmdi zmdi-window-maximize"></i></span>
+                <span id="chat-fullscreen-loader" class="chat-fullscreen-loader">
+                    <i class="fullscreen zmdi zmdi-window-maximize"></i>
+                </span>
             </div>
         </div>
         <div id="chat-fullscreen" class="chat-converse">
             <span class="chat-msg-item chat-msg-item-admin">
-                <div class="chat-avatar"><img src="<?= $block->getViewFileUrl('MageDad_AdminBot::img/bot.png'); ?>"></div>
-                <div>Hello there, how can I help you? You need a help for?</div>
+                <div class="chat-avatar">
+                    <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('MageDad_AdminBot::img/bot.png')); ?>">
+                </div>
+                <div><?= /* @noEscape */ __('Hello there, how can I help you? You need a help for?') ?></div>
             </span>
             <span class="chat-msg-item">
                 <ul class="tags">
-                    <li class="auto-suggest">Sales</li>
-                    <li class="auto-suggest">Catalog</li>
-                    <li class="auto-suggest">Customers</li>
-                    <li class="auto-suggest">CMS Pages</li>
-                    <li class="auto-suggest">CMS Block</li>
-                    <li class="auto-suggest">Config</li>
-                    <li class="auto-suggest">Menu</li>
-                    <li class="auto-suggest">Marketing</li>
+                    <?php foreach ($block->getPredefinedWords() as $key => $word): ?>
+                        <li class="auto-suggest"><?= /* @noEscape */ $word ?></li>
+                    <?php endforeach; ?>
                 </ul>
             </span>
         </div>
@@ -32,16 +46,11 @@
             <form>
                 <select name="search-type" id="search-type">
                     <option value="">Select</option>
-                    <option>Sales</option>
-                    <option>Catalog</option>
-                    <option>Customers</option>
-                    <option>CMS Pages</option>
-                    <option>CMS Block</option>
-                    <option>Config</option>
-                    <option>Menu</option>
-                    <option>Marketing</option>
+                    <?php foreach ($block->getPredefinedWords() as $key => $word): ?>
+                        <option class="auto-suggest"><?= /* @noEscape */ $word ?></option>
+                    <?php endforeach; ?>
                 </select>
-                <input type="text" placeholder="Type something here.." required  class="chat_field chat-message">
+                <input type="text" placeholder="Type something here.." required  class="chat-field chat-message">
                 <button type="submit" class="send-message"><i class="zmdi zmdi-mail-send"></i></button>
             </form>
         </div>
@@ -52,8 +61,8 @@
   {
     "#md-chatbox": {
       "chatBot": {
-        "url": "<?php echo $block->getUrl('adminhtml/request/index'); ?>",
-        "botImage": "<?= $block->getViewFileUrl('MageDad_AdminBot::img/bot.png'); ?>"
+        "url": "<?= /* @noEscape */ $block->getUrl('adminhtml/request/index'); ?>",
+        "botImage": "<?= /* @noEscape */ $block->getViewFileUrl('MageDad_AdminBot::img/bot.png'); ?>"
       }
     }
   }

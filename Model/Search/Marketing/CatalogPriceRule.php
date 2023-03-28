@@ -1,52 +1,29 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
+
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search\Marketing;
 
+use Magento\Backend\Model\UrlInterface;
 use Magento\CatalogRule\Model\ResourceModel\Rule\CollectionFactory;
+use Magento\Framework\DataObject;
 
-class CatalogPriceRule extends \Magento\Framework\DataObject
+class CatalogPriceRule extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
-     */
-    protected $customerRepository;
-
-    /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
-     */
-    protected $searchCriteriaBuilder;
-
-    /**
-     * @var \Magento\Framework\Api\FilterBuilder
-     */
-    protected $filterBuilder;
-
-    /**
-     * @var \Magento\Customer\Helper\View
-     */
-    protected $_customerViewHelper;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param UrlInterface $urlBuilder
+     * @param CollectionFactory $collectionFactory
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
+        UrlInterface $urlBuilder,
         CollectionFactory $collectionFactory
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->collectionFactory = $collectionFactory;
     }
 
@@ -67,16 +44,18 @@ class CatalogPriceRule extends \Magento\Framework\DataObject
         if (is_numeric(trim($this->getQuery()))) {
             $collection->addFieldToFilter('rule_id', ['eq' => $this->getQuery()]);
         } else {
-            $collection->addFieldToFilter('name', ['like' => '%'.$this->getQuery().'%']);
+            $collection->addFieldToFilter('name', ['like' => '%' . $this->getQuery() . '%']);
         }
 
         foreach ($collection as $catalogPrice) {
             $result[] = [
-                'id' => 'catalogPrice/1/' . $catalogPrice->getId(),
                 'type' => __('Catalog Price Rule'),
                 'name' => $catalogPrice->getName(),
                 'extraInfo' => [],
-                'url' => $this->_adminhtmlData->getUrl('catalog_rule/promo_catalog/edit', ['id' => $catalogPrice->getId()]),
+                'url' => $this->urlBuilder->getUrl(
+                    'catalog_rule/promo_catalog/edit',
+                    ['id' => $catalogPrice->getId()]
+                ),
             ];
         }
 

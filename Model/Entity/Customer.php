@@ -1,32 +1,45 @@
 <?php
 /**
- * Copyright ©  All rights reserved.
- * See COPYING.txt for license details.
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
  */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity;
 
+use MageDad\AdminBot\Model\ReplyFormat;
+use Magento\Catalog\Model\Product\TypeFactory;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Framework\UrlInterface;
+
+/*
+ * phpcs:disable Magento2.Translation.ConstantUsage
+ */
 class Customer extends Entity
 {
     public const CUSTOMER_QUERY = 'Customer';
     public const ADD_CUSTOMER_QUERY = 'Add customer';
-    public const EDIT_CUSTOMER_QUERY = 'Edit/View customer';
     public const SEARCH_CUSTOMER_QUERY = 'Search customers';
-    public const TAKE_ACTION = 'action';
+
     public const SEARCH_WORDS = [
         self::CUSTOMER_QUERY,
         self::ADD_CUSTOMER_QUERY,
-        self::EDIT_CUSTOMER_QUERY,
         self::SEARCH_CUSTOMER_QUERY,
         'customers' // additional serch word
     ];
 
+    /**
+     * @param TypeFactory $typeFactory
+     * @param ProductFactory $productFactory
+     * @param UrlInterface $urlBuilder
+     * @param ReplyFormat $replyFormat
+     */
     public function __construct(
-        \Magento\Catalog\Model\Product\TypeFactory $typeFactory,
-        \Magento\Catalog\Model\ProductFactory $productFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \MageDad\AdminBot\Model\ReplyFormat $replyFormat
+        TypeFactory $typeFactory,
+        ProductFactory $productFactory,
+        UrlInterface $urlBuilder,
+        ReplyFormat $replyFormat
     ) {
         $this->productFactory = $productFactory;
         $this->typeFactory = $typeFactory;
@@ -35,30 +48,55 @@ class Customer extends Entity
         parent::__construct();
     }
 
-    public function checkIsMyQuery($query)
+    /**
+     * Check Is My Query
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQuery(string $query)
     {
         $productAllQuery = array_map('strtolower', self::SEARCH_WORDS);
         return in_array(strtolower($query), $productAllQuery) || in_array($query, $productAllQuery);
     }
 
-    public function checkIsMyQueryWithKeyword($query)
+    /**
+     * Check Is My Query With Keyword
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQueryWithKeyword(string $query)
     {
         return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
     }
 
-    public function cleanQuery($query)
+    /**
+     * Clean Query
+     *
+     * @param string $query
+     * @return string
+     */
+    public function cleanQuery(string $query)
     {
         return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
     }
 
-    public function getReply($query)
+    /**
+     * Get reply
+     *
+     * @param string $query
+     * @return array
+     */
+    public function getReply(string $query)
     {
-        if (strtolower($query) == strtolower(self::CUSTOMER_QUERY) || strtolower($query) == 'customers') {
-            return $this->mainOption($query);
+
+        if (!$this->authorization->isAllowed('Magento_Customer::customer')) {
+            return [];
         }
 
-        if (strtolower($query) == strtolower(self::EDIT_CUSTOMER_QUERY)) {
-            return $this->editCustomer($query);
+        if (strtolower($query) == strtolower(self::CUSTOMER_QUERY) || strtolower($query) == 'customers') {
+            return $this->mainOption($query);
         }
 
         if (strtolower($query) == strtolower(self::SEARCH_CUSTOMER_QUERY)) {
@@ -68,32 +106,39 @@ class Customer extends Entity
         return [];
     }
 
-    private function mainOption($query)
+    /**
+     * MainOption
+     *
+     * @param string $query
+     * @return array
+     */
+    private function mainOption(string $query)
     {
-        if (!$this->authorization->isAllowed('Magento_Customer::customer')) {
-            return [];
-        }
-
         return $this->returnData(
             __('Please select relevant option.'),
             [
                 $this->addCustomer($query),
-                $this->returnData(__(self::EDIT_CUSTOMER_QUERY)),
                 $this->returnData(__(self::SEARCH_CUSTOMER_QUERY)),
             ]
         );
     }
 
-    private function addCustomer($query)
+    /**
+     * Add customer
+     *
+     * @param string $query
+     * @return array
+     */
+    private function addCustomer(string $query)
     {
         if (!$this->authorization->isAllowed('Magento_Customer::manage')) {
             return [];
         }
 
         $customerUrl = $this->urlBuilder->getUrl(
-                'customer/index/new',
-                ['_secure' => true]
-            );
+            'customer/index/new',
+            ['_secure' => true]
+        );
         return $this->returnData(
             __(self::ADD_CUSTOMER_QUERY),
             [],
@@ -101,35 +146,33 @@ class Customer extends Entity
         );
     }
 
-    private function editCustomer($query)
+    /**
+     * Search customer
+     *
+     * @param string $query
+     * @return array
+     */
+    private function searchCustomer(string $query)
     {
         if (!$this->authorization->isAllowed('Magento_Customer::manage')) {
             return [];
         }
 
         return $this->returnData(
-            __('Customer {name/email/customerId}'),
+            $this->typeCommand(__('Customer {name/email/customerId}')),
             [],
             '',
-            __('Customer')." "
+            __('Customer') . " "
         );
     }
 
-    private function searchCustomer($query)
-    {
-        if (!$this->authorization->isAllowed('Magento_Customer::manage')) {
-            return [];
-        }
-
-        return $this->returnData(
-            __('Customer {name/email/customerId}'),
-            [],
-            '',
-            __('Customer')." "
-        );
-    }
-
-    protected function getCustomerCreateUrl($type)
+    /**
+     * Get customer create url
+     *
+     * @param string $type
+     * @return string
+     */
+    protected function getCustomerCreateUrl(string $type): string
     {
         return $this->urlBuilder->getUrl(
             'catalog/product/new',

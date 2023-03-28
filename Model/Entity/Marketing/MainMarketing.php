@@ -1,10 +1,16 @@
 <?php
-
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity\Marketing;
 
 use MageDad\AdminBot\Model\Entity\Entity;
+use MageDad\AdminBot\Model\ReplyFormat;
+use Magento\Framework\UrlInterface;
 
 class MainMarketing extends Entity
 {
@@ -13,49 +19,85 @@ class MainMarketing extends Entity
         self::MARKETING_QUERY
     ];
 
+    /**
+     * Construct
+     *
+     * @param UrlInterface $urlBuilder
+     * @param ReplyFormat $replyFormat
+     */
     public function __construct(
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \MageDad\AdminBot\Model\ReplyFormat $replyFormat
+        UrlInterface $urlBuilder,
+        ReplyFormat $replyFormat
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->replyFormat = $replyFormat;
         parent::__construct();
     }
 
-    public function checkIsMyQuery($query)
+    /**
+     * Check Is My Query
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQuery(string $query)
     {
         $salesAllQuery = array_map('strtolower', self::SEARCH_WORDS);
         return in_array(strtolower($query), $salesAllQuery);
     }
 
-    public function checkIsMyQueryWithKeyword($query)
+    /**
+     * Check Is My Query With Keyword
+     *
+     * @param string $query
+     * @return bool
+     */
+    public function checkIsMyQueryWithKeyword(string $query)
     {
         return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
     }
 
-    public function cleanQuery($query)
+    /**
+     * Clean Query
+     *
+     * @param string $query
+     * @return string
+     */
+    public function cleanQuery(string $query)
     {
         return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
     }
 
-    public function getReply($query)
+    /**
+     * Get Reply
+     *
+     * @param string $query
+     * @return array
+     */
+    public function getReply(string $query)
     {
         if (strtolower($query) == strtolower(self::MARKETING_QUERY) || strtolower($query) == 'sale') {
-            return $this->sales($query);
+            return $this->mainOption($query);
         }
 
         return [];
     }
 
-    private function sales($query)
+    /**
+     * Main Option
+     *
+     * @param string $query
+     * @return array
+     */
+    private function mainOption(string $query)
     {
         return $this->returnData(
             __('Please select relevant option.'),
             [
-                $this->returnData(__('Catalog Price Rule')),
-                $this->returnData(__('Cart Price Rules')),
-                $this->returnData(__('Email Templates')),
-                $this->returnData(__('URL Rewrites')),
+                $this->getCatalogPriceRuleOption(),
+                $this->getCartPriceRulesOption(),
+                $this->getEmailTemplatesOption(),
+                $this->getURLRewritesOption(),
                 // $this->returnData(__('Newsletter Templates')),
                 // $this->returnData(__('Newsletter Queue')),
                 // $this->returnData(__('Search Terms')),
@@ -65,5 +107,53 @@ class MainMarketing extends Entity
                 // $this->returnData(__('Pending Reviews')),
             ]
         );
+    }
+
+    /**
+     * Get Catalog Price Rule Option
+     *
+     * @return array|void
+     */
+    private function getCatalogPriceRuleOption()
+    {
+        if ($this->authorization->isAllowed('Magento_SalesRule::quote')) {
+            return $this->returnData(__('Catalog Price Rule'));
+        }
+    }
+
+    /**
+     * Get Cart Price Rules Option
+     *
+     * @return array|void
+     */
+    private function getCartPriceRulesOption()
+    {
+        if ($this->authorization->isAllowed('Magento_CatalogRule::promo_catalog')) {
+            return $this->returnData(__('Cart Price Rules'));
+        }
+    }
+
+    /**
+     * Get Email Templates Option
+     *
+     * @return array|void
+     */
+    private function getEmailTemplatesOption()
+    {
+        if ($this->authorization->isAllowed('Magento_Email::template')) {
+            return $this->returnData(__('Email Templates'));
+        }
+    }
+
+    /**
+     * Get URLRewrites Option
+     *
+     * @return array|void
+     */
+    private function getURLRewritesOption()
+    {
+        if ($this->authorization->isAllowed('Magento_UrlRewrite::urlrewrite')) {
+            return $this->returnData(__('URL Rewrites'));
+        }
     }
 }

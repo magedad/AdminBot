@@ -1,12 +1,17 @@
 <?php
 /**
- * Copyright ©  All rights reserved.
- * See COPYING.txt for license details.
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
  */
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Controller\Adminhtml\Request;
 
+use Exception;
+use MageDad\AdminBot\Model\Bot;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Response\Http;
 use Magento\Framework\Controller\ResultInterface;
@@ -15,40 +20,25 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Result\PageFactory;
 use Psr\Log\LoggerInterface;
 
-class Index extends \Magento\Backend\App\Action
+class Index extends Action
 {
-    /**
-     * @var PageFactory
-     */
-    protected $resultPageFactory;
-    /**
-     * @var Json
-     */
-    protected $serializer;
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var Http
-     */
-    protected $http;
-
     /**
      * Constructor
      *
+     * @param Context $context
      * @param PageFactory $resultPageFactory
      * @param Json $json
      * @param LoggerInterface $logger
      * @param Http $http
+     * @param Bot $bot
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
+        Context $context,
         PageFactory $resultPageFactory,
         Json $json,
         LoggerInterface $logger,
         Http $http,
-        \MageDad\AdminBot\Model\Bot $bot
+        Bot $bot
     ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->serializer = $json;
@@ -67,14 +57,14 @@ class Index extends \Magento\Backend\App\Action
     {
         try {
             if (!$this->getRequest()->getParam('isAjax')) {
-                return $resultJson;
+                return $this->jsonResponse([]);
             }
             $message = $this->getRequest()->getParam('message');
             $response = $this->bot->getReplyForMessage(strtolower($message));
             return $this->jsonResponse($response);
         } catch (LocalizedException $e) {
             return $this->jsonResponse($e->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->critical($e);
             return $this->jsonResponse($e->getMessage());
         }
@@ -83,9 +73,10 @@ class Index extends \Magento\Backend\App\Action
     /**
      * Create json response
      *
-     * @return ResultInterface
+     * @param array $response
+     * @return mixed
      */
-    public function jsonResponse($response = '')
+    public function jsonResponse($response = [])
     {
         $this->http->getHeaders()->clearHeaders();
         $this->http->setHeader('Content-Type', 'application/json');
@@ -94,4 +85,3 @@ class Index extends \Magento\Backend\App\Action
         );
     }
 }
-

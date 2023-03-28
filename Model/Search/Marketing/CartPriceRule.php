@@ -1,52 +1,29 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
+
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search\Marketing;
 
+use Magento\Backend\Model\UrlInterface;
+use Magento\Framework\DataObject;
 use Magento\SalesRule\Model\ResourceModel\Rule\CollectionFactory;
 
-class CartPriceRule extends \Magento\Framework\DataObject
+class CartPriceRule extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
-     */
-    protected $customerRepository;
-
-    /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
-     */
-    protected $searchCriteriaBuilder;
-
-    /**
-     * @var \Magento\Framework\Api\FilterBuilder
-     */
-    protected $filterBuilder;
-
-    /**
-     * @var \Magento\Customer\Helper\View
-     */
-    protected $_customerViewHelper;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param UrlInterface $urlBuilder
+     * @param CollectionFactory $collectionFactory
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
+        UrlInterface $urlBuilder,
         CollectionFactory $collectionFactory
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->collectionFactory = $collectionFactory;
     }
 
@@ -71,20 +48,18 @@ class CartPriceRule extends \Magento\Framework\DataObject
             $collection->addFieldToFilter(
                 ['name', 'code'],
                 [
-                    ['like' => '%'.$this->getQuery().'%'],
-                    ['like' => '%'.$this->getQuery().'%']
+                    ['like' => '%' . $this->getQuery() . '%'],
+                    ['like' => '%' . $this->getQuery() . '%']
                 ]
             );
         }
 
-        #echo $collection->getSelect()->__toString();die();
         foreach ($collection as $cartPrice) {
             $result[] = [
-                'id' => 'cartPrice/1/' . $cartPrice->getId(),
                 'type' => __('Cart Price Rule'),
                 'name' => $cartPrice->getName(),
                 'extraInfo' => [],
-                'url' => $this->_adminhtmlData->getUrl('sales_rule/promo_quote/edit', ['id' => $cartPrice->getId()]),
+                'url' => $this->urlBuilder->getUrl('sales_rule/promo_quote/edit', ['id' => $cartPrice->getId()])
             ];
         }
 

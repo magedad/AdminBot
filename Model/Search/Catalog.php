@@ -1,46 +1,45 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
+declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search;
 
+use Magento\Backend\Model\UrlInterface;
+use Magento\Catalog\Model\ProductRepository;
+use Magento\Framework\DataObject;
+use Magento\Framework\Pricing\Helper\Data;
+use Magento\Framework\Stdlib\StringUtils;
+use Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku;
 use Magento\Search\Model\QueryFactory;
 
-/**
- * Search model for backend search
- */
-class Catalog extends \Magento\Framework\DataObject
+class Catalog extends DataObject
 {
     /**
-     * Catalog search data
-     *
-     * @var \Magento\Search\Model\QueryFactory
-     */
-    protected $queryFactory = null;
-
-    /**
-     * Magento string lib
-     *
-     * @var \Magento\Framework\Stdlib\StringUtils
-     */
-    protected $string;
-
-    /**
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Framework\Stdlib\StringUtils $string
+     * @param UrlInterface $urlBuilder
+     * @param StringUtils $string
+     * @param ProductRepository $productRepository
+     * @param Data $priceHelper
+     * @param GetSalableQuantityDataBySku $getSalableQuantityDataBySku
      * @param QueryFactory $queryFactory
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
-        \Magento\Framework\Stdlib\StringUtils $string,
+        UrlInterface $urlBuilder,
+        StringUtils $string,
+        ProductRepository $productRepository,
+        Data $priceHelper,
+        GetSalableQuantityDataBySku $getSalableQuantityDataBySku,
         QueryFactory $queryFactory
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->string = $string;
+        $this->productRepository = $productRepository;
         $this->queryFactory = $queryFactory;
+        $this->priceHelper = $priceHelper;
+        $this->getSalableQuantityDataBySku = $getSalableQuantityDataBySku;
     }
 
     /**
@@ -70,15 +69,37 @@ class Catalog extends \Magento\Framework\DataObject
         }
 
         foreach ($collection as $product) {
+            $product = $this->productRepository->getById($product->getId());
+            $salable = $this->getSalableQuantityDataBySku->execute($product->getSku());
+
+            $salableQty = '';
+            foreach ($salable as $key => $item) {
+                $salableQty .= $item['stock_name'] . " = " . $item['qty'] . "<br>";
+            }
+            $stockItem = $product->getExtensionAttributes()->getStockItem();
             $extraInfo = [
-                'SKU' => $product->getSku()
+                'SKU' => $product->getSku(),
+                'Price' => $this->priceHelper->currency($product->getPrice()),
+                'Quantity' => $stockItem->getQty(),
+                'Salable Quantity' => $salableQty,
+                'Is in stock' => $stockItem->getIsInStock(),
+                'Manage stock' => $stockItem->getManageStock(),
+                'URL Key' => $product->getUrlKey(),
+                'Product Type' => $product->getTypeId(),
             ];
+
+            if ($product->getSpecialPrice()) {
+                $extraInfo['Special Price'] = $this->priceHelper->currency($product->getSpecialPrice());
+            }
+
             $result[] = [
-                'id' => 'product/1/' . $product->getId(),
                 'type' => __('Product'),
                 'name' => $product->getName(),
                 'extraInfo' => $extraInfo,
-                'url' => $this->_adminhtmlData->getUrl('catalog/product/edit', ['id' => $product->getId()]),
+                'url' => $this->urlBuilder->getUrl(
+                    'catalog/product/edit',
+                    ['id' => $product->getId()]
+                )
             ];
         }
 
@@ -87,6 +108,11 @@ class Catalog extends \Magento\Framework\DataObject
         return $this;
     }
 
+    /**
+     * Get product collection by id
+     *
+     * @return mixed
+     */
     public function getProductCollectionById()
     {
         $collection = $this->queryFactory->get()

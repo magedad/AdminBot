@@ -1,39 +1,30 @@
 <?php
+/**
+ * @author MageDad Team
+ * @copyright Copyright (c) 2023 Magedad (https://www.magedad.com)
+ * @package Magento 2 Admin ChatBot
+ */
 
 declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search\Marketing;
 
+use Magento\Backend\Model\UrlInterface;
+use Magento\Customer\Helper\View;
+use Magento\Framework\DataObject;
 use Magento\UrlRewrite\Model\ResourceModel\UrlRewriteCollectionFactory;
 
-
-class URLRewrites extends \Magento\Framework\DataObject
+class URLRewrites extends DataObject
 {
     /**
-     * Adminhtml data
-     *
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $_adminhtmlData = null;
-
-    /**
-     * @var \Magento\Customer\Helper\View
-     */
-    protected $_customerViewHelper;
-
-    /**
-     * Initialize dependencies.
-     *
-     * @param \Magento\Backend\Helper\Data $adminhtmlData
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Framework\Api\FilterBuilder $filterBuilder
+     * @param UrlInterface $urlBuilder
+     * @param UrlRewriteCollectionFactory $collectionFactory
      */
     public function __construct(
-        \Magento\Backend\Helper\Data $adminhtmlData,
-        UrlRewriteCollectionFactory $collectionFactory
+        UrlInterface $urlBuilder,
+        UrlRewriteCollectionFactory  $collectionFactory
     ) {
-        $this->_adminhtmlData = $adminhtmlData;
+        $this->urlBuilder = $urlBuilder;
         $this->collectionFactory = $collectionFactory;
     }
 
@@ -58,20 +49,21 @@ class URLRewrites extends \Magento\Framework\DataObject
             $collection->addFieldToFilter(
                 ['request_path', 'target_path'],
                 [
-                    ['like' => '%'.$this->getQuery().'%'],
-                    ['like' => '%'.$this->getQuery().'%']
+                    ['like' => '%' . $this->getQuery() . '%'],
+                    ['like' => '%' . $this->getQuery() . '%']
                 ]
             );
         }
 
-        #echo $collection->getSelect()->__toString();die();
         foreach ($collection as $urlRewrite) {
             $result[] = [
-                'id' => 'urlRewrite/1/' . $urlRewrite->getId(),
                 'type' => __('Url Rewrite'),
                 'name' => $urlRewrite->getRequestPath() . " => " . $urlRewrite->getTargetPath(),
                 'extraInfo' => [],
-                'url' => $this->_adminhtmlData->getUrl('adminhtml/url_rewrite/edit', ['id' => $urlRewrite->getUrlRewriteId()]),
+                'url' => $this->urlBuilder->getUrl(
+                    'adminhtml/url_rewrite/edit',
+                    ['id' => $urlRewrite->getUrlRewriteId()]
+                ),
             ];
         }
 
