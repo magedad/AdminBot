@@ -28,7 +28,7 @@
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
                 </item>
                 <item name="creditmemo" xsi:type="array">
-                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Sales\CreditMemo</item>
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Sales\Creditmemo</item>
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
                 </item>
                 <item name="page" xsi:type="array">
