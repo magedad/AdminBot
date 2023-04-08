@@ -20,7 +20,7 @@ class CartPriceRule extends Entity
     public const CARTPRICERULE_QUERY = 'Cart Price Rule';
     public const ADD_CARTPRICERULE_QUERY = 'Add Cart Price Rule';
     public const SEARCH_CARTPRICERULE_QUERY = 'Search Cart Price Rule';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CARTPRICERULE_QUERY,
         self::ADD_CARTPRICERULE_QUERY,
         self::SEARCH_CARTPRICERULE_QUERY,
@@ -50,9 +50,9 @@ class CartPriceRule extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $cartPriceRuleAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $cartPriceRuleAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $cartPriceRuleAllQuery) || in_array($query, $cartPriceRuleAllQuery);
     }
 
@@ -64,7 +64,7 @@ class CartPriceRule extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -75,7 +75,7 @@ class CartPriceRule extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -145,10 +145,22 @@ class CartPriceRule extends Entity
     public function searchCartPriceRule(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('Cart Price Rule {Coupon code/Rule Name/ID }')),
+            $this->typeCommand(__('Cart price rule {Coupon code/Rule Name/ID}')),
             [],
             '',
-            __('Cart Price Rule') . " "
+            __('Cart price rule') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Cart price rule {Coupon code/Rule Name/ID}')
+        ];
     }
 }

@@ -6,26 +6,18 @@
  */
 declare(strict_types=1);
 
-namespace MageDad\AdminBot\Model\Search;
+namespace MageDad\AdminBot\Model\Search\Sales;
 
 use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Pricing\Helper\Data;
-use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\Shipment\CollectionFactory;
 
-class Creditmemo extends DataObject
+class Shipment extends SalesSearch
 {
     /**
-     * @var \Magento\Backend\Helper\Data
-     */
-    protected $adminhtmlData = null;
-
-    /**
-     * @var CollectionFactory
-     */
-    protected $collectionFactory;
-
-    /**
+     * Construct
+     *
      * @param CollectionFactory $collectionFactory
      * @param UrlInterface $urlBuilder
      * @param Data $priceHelper
@@ -37,7 +29,7 @@ class Creditmemo extends DataObject
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->urlBuilder = $urlBuilder;
-        $this->priceHelper = $priceHelper;
+        parent::__construct($priceHelper);
     }
 
     /**
@@ -59,8 +51,6 @@ class Creditmemo extends DataObject
         $collection
             ->addAttributeToSelect('entity_id')
             ->addAttributeToSelect('increment_id')
-            ->addAttributeToSelect('subtotal')
-            ->addAttributeToSelect('grand_total')
             ->addAttributeToSelect('created_at')
             ->join(
                 ['so' => $collection->getTable('sales_order')],
@@ -91,28 +81,25 @@ class Creditmemo extends DataObject
                 'DESC'
             )->load();
 
-        foreach ($collection as $creditmemo) {
-            $orderUrl = $this->urlBuilder->getUrl->getUrl('sales/order/view', ['order_id' => $creditmemo->getOrderId()]);
+        foreach ($collection as $shipment) {
+            $orderUrl = $this->urlBuilder->getUrl('sales/order/view', ['order_id' => $shipment->getOrderId()]);
             $extraInfo = [
-                'Order Id' => "<a href='" . $orderUrl . "'>#" . $creditmemo->getOrderIncrementId() . "</a>",
-                'Customer Name' => $creditmemo->getCustomerFirstname() . ' ' . $creditmemo->getCustomerLastname(),
-                'Email' => $creditmemo->getCustomerEmail(),
-                'Subtotal' => $this->priceHelper->currency($creditmemo->getSubtotal()),
-                'Grand Total' => $this->priceHelper->currency($creditmemo->getGrandTotal()),
-                'Created At' => $creditmemo->getCreatedAt()
+                'Order Id' => "<a href='" . $orderUrl . "'>#" . $shipment->getOrderIncrementId() . "</a>",
+                'Customer Name' => $this->getCustomerName($shipment->getOrder()),
+                'Email' => $shipment->getCustomerEmail(),
+                'Customer Group' => $this->getCustomerGroupName($shipment->getOrder()),
+                'Created At' => $shipment->getCreatedAt()
             ];
 
             $result[] = [
-                'id' => $creditmemo->getId(),
-                'type' => $collection->getSize() > 0 ? __('Creditmemos') : __('Creditmemo'),
-                'name' => __('Creditmemo #%1', $creditmemo->getIncrementId()),
+                'id' => $shipment->getId(),
+                'type' => $collection->getSize() > 0 ? __('Shipments') : __('Shipment'),
+                'name' => __('Shipment #%1', $shipment->getIncrementId()),
                 'extraInfo' => $extraInfo,
-                'url' => $this->urlBuilder->getUrl->getUrl(
-                    'sales/creditmemo/view',
-                    ['creditmemo_id' => $creditmemo->getId()]
-                ),
+                'url' => $this->urlBuilder->getUrl('sales/shipment/view', ['shipment_id' => $shipment->getId()]),
             ];
         }
+
         $this->setResults($result);
 
         return $this;

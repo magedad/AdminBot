@@ -19,11 +19,9 @@ use Magento\Framework\UrlInterface;
 class Config extends Entity
 {
     public const CONFIG_QUERY = 'Config';
-    public const SEARCH_CONFIG_QUERY = 'Search config';
 
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CONFIG_QUERY,
-        self::SEARCH_CONFIG_QUERY,
         'configs' // additional serch word
     ];
 
@@ -54,9 +52,9 @@ class Config extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $productAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $productAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $productAllQuery) || in_array($query, $productAllQuery);
     }
 
@@ -68,7 +66,7 @@ class Config extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -79,7 +77,7 @@ class Config extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -91,11 +89,7 @@ class Config extends Entity
     public function getReply(string $query)
     {
         if (strtolower($query) == strtolower(self::CONFIG_QUERY) || strtolower($query) == 'configs') {
-            return $this->mainOption($query);
-        }
-
-        if (strtolower($query) == strtolower(self::SEARCH_CONFIG_QUERY)) {
-            return $this->searchConfig($query);
+            return $this->mainOption();
         }
 
         return [];
@@ -104,26 +98,9 @@ class Config extends Entity
     /**
      * Main option
      *
-     * @param string $query
      * @return array
      */
-    public function mainOption(string $query): array
-    {
-        return $this->returnData(
-            __('Please select relevant option.'),
-            [
-                $this->returnData(__(self::SEARCH_CONFIG_QUERY)),
-            ]
-        );
-    }
-
-    /**
-     * Search config
-     *
-     * @param string $query
-     * @return array
-     */
-    public function searchConfig(string $query): array
+    public function mainOption(): array
     {
         return $this->returnData(
             $this->typeCommand(__('Config {Keyword}')),

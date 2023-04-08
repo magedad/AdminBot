@@ -21,13 +21,13 @@ class CmsPage extends Entity
     public const ADD_CMSPAGE_QUERY = 'Add CMS Page';
     public const SEARCH_CMSPAGE_QUERY = 'Search/Edit/View Pages';
 
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CMSPAGE_QUERY,
         self::ADD_CMSPAGE_QUERY,
         self::SEARCH_CMSPAGE_QUERY,
     ];
 
-    public const ADDITIONAL_SEARCH_WORDS = [
+    public const ADDITIONAL_AUTO_REPLY_WORDS = [
         'cms pages',
         'pages',
         'page',
@@ -54,11 +54,11 @@ class CmsPage extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $cmspageAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $cmspageAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $cmspageAllQuery)
-            || in_array(strtolower($query), self::ADDITIONAL_SEARCH_WORDS);
+            || in_array(strtolower($query), self::ADDITIONAL_AUTO_REPLY_WORDS);
     }
 
     /**
@@ -79,7 +79,7 @@ class CmsPage extends Entity
      */
     public function getSearchWord()
     {
-        return array_merge(self::SEARCH_WORDS, self::ADDITIONAL_SEARCH_WORDS);
+        return array_merge(self::AUTO_REPLY_WORDS, self::ADDITIONAL_AUTO_REPLY_WORDS);
     }
 
     /**
@@ -106,7 +106,7 @@ class CmsPage extends Entity
         }
 
         if (strtolower($query) == strtolower(self::CMSPAGE_QUERY)
-            || in_array(strtolower($query), self::ADDITIONAL_SEARCH_WORDS)
+            || in_array(strtolower($query), self::ADDITIONAL_AUTO_REPLY_WORDS)
         ) {
             return $this->cmsPage($query);
         }
@@ -171,10 +171,22 @@ class CmsPage extends Entity
     public function searchCmsPage(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('Cms Page {id/name/url_key/keword}')),
+            $this->typeCommand(__('Cms Pages {id/name/url_key/keword}')),
             [],
             '',
-            __('Cms Pages') . " "
+            __('Cms page') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Cms page {id/name/url_key/keword}')
+        ];
     }
 }

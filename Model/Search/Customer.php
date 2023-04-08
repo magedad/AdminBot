@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Search;
 
+use MageDad\AdminBot\Model\Entity\Customer as CustomerEntity;
 use Magento\Backend\Model\UrlInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Helper\View;
@@ -65,15 +66,20 @@ class Customer extends DataObject
 
         $this->searchCriteriaBuilder->setCurrentPage($this->getStart());
         $this->searchCriteriaBuilder->setPageSize($this->getLimit());
-        $searchFields = ['firstname', 'lastname', 'billing_company', 'email', 'entity_id'];
         $filters = [];
-        foreach ($searchFields as $field) {
-            $filters[] = $this->filterBuilder
-                ->setField($field)
-                ->setConditionType('like')
-                ->setValue($this->getQuery() . '%')
-                ->create();
+        $query = $this->getQuery();
+        $customerNoReply = array_map('strtolower', CustomerEntity::NO_AUTO_REPLY_QUERY);
+        if (!in_array($query, $customerNoReply)) {
+            $searchFields = ['firstname', 'lastname', 'billing_company', 'email', 'entity_id'];
+            foreach ($searchFields as $field) {
+                $filters[] = $this->filterBuilder
+                    ->setField($field)
+                    ->setConditionType('like')
+                    ->setValue($this->getQuery() . '%')
+                    ->create();
+            }
         }
+
         $sortOrder = $this->sortOrderBuilder->setField('entity_id')->setDirection('DESC')->create();
         $this->searchCriteriaBuilder->addFilters($filters)->setSortOrders([$sortOrder]);
         $searchCriteria = $this->searchCriteriaBuilder->create();

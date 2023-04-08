@@ -6,14 +6,15 @@
  */
 declare(strict_types=1);
 
-namespace MageDad\AdminBot\Model\Search;
+namespace MageDad\AdminBot\Model\Search\Sales;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Backend\Model\UrlInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory;
 
-class Invoice extends DataObject
+class Invoice extends SalesSearch
 {
     /**
      * @param CollectionFactory $collectionFactory
@@ -28,6 +29,7 @@ class Invoice extends DataObject
         $this->collectionFactory = $collectionFactory;
         $this->urlBuilder = $urlBuilder;
         $this->priceHelper = $priceHelper;
+        parent::__construct($priceHelper);
     }
 
     /**
@@ -82,11 +84,12 @@ class Invoice extends DataObject
             )->load();
 
         foreach ($collection as $invoice) {
-            $orderUrl = $this->urlBuilder->getUrl->getUrl('sales/order/view', ['order_id' => $invoice->getOrderId()]);
+            $orderUrl = $this->urlBuilder->getUrl('sales/order/view', ['order_id' => $invoice->getOrderId()]);
             $extraInfo = [
                 'Order Id' => "<a href='" . $orderUrl . "'>#" . $invoice->getOrderIncrementId() . "</a>",
-                'Customer Name' => $invoice->getCustomerFirstname() . ' ' . $invoice->getCustomerLastname(),
+                'Customer Name' => $this->getCustomerName($invoice->getOrder()),
                 'Email' => $invoice->getCustomerEmail(),
+                'Customer Group' => $this->getCustomerGroupName($invoice->getOrder()),
                 'Subtotal' => $this->priceHelper->currency($invoice->getSubtotal()),
                 'Grand Total' => $this->priceHelper->currency($invoice->getGrandTotal()),
                 'Created At' => $invoice->getCreatedAt()
@@ -97,12 +100,31 @@ class Invoice extends DataObject
                 'type' => $collection->getSize() > 0 ? __('Invoices') : __('Invoice'),
                 'name' => __('Invoice #%1', $invoice->getIncrementId()),
                 'extraInfo' => $extraInfo,
-                'url' => $this->urlBuilder->getUrl->getUrl('sales/invoice/view', ['invoice_id' => $invoice->getId()]),
+                'url' => $this->urlBuilder->getUrl('sales/invoice/view', ['invoice_id' => $invoice->getId()]),
             ];
         }
 
         $this->setResults($result);
 
         return $this;
+    }
+
+    /**
+     * Get URL to edit the customer.
+     *
+     * @param Order $order
+     * @return string
+     */
+    public function getCustomerName(Order $order)
+    {
+        $customerName = $order->getCustomerFirstname() . ' ' . $order->getCustomerLastname();
+        if ($order->getCustomerIsGuest() || !$order->getCustomerId()) {
+            return $customerName;
+        }
+
+        return
+            '<a href="'.$this->urlBuilder->getUrl('customer/index/edit', ['id' => $order->getCustomerId()]).'">'
+                .$customerName
+            .'</a>' ;
     }
 }

@@ -20,7 +20,7 @@ class CatalogPriceRule extends Entity
     public const CATALOGPRICERULE_QUERY = 'Catalog Price Rule';
     public const ADD_CATALOGPRICERULE = 'Add Catalog Price Rule';
     public const SEARCH_CATALOGPRICERULE_QUERY = 'Search Catalog Price Rule';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CATALOGPRICERULE_QUERY,
         self::ADD_CATALOGPRICERULE,
         self::SEARCH_CATALOGPRICERULE_QUERY,
@@ -50,9 +50,9 @@ class CatalogPriceRule extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $CatalogPriceRuleAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $CatalogPriceRuleAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $CatalogPriceRuleAllQuery) || in_array($query, $CatalogPriceRuleAllQuery);
     }
 
@@ -64,7 +64,7 @@ class CatalogPriceRule extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -75,7 +75,7 @@ class CatalogPriceRule extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -147,10 +147,22 @@ class CatalogPriceRule extends Entity
     private function searchCatalogPriceRule(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('Catalog Price Rule {Rule Name/ID}')),
+            $this->typeCommand(__('Catalog price rule {Rule Name/ID}')),
             [],
             '',
-            __('Catalog Price Rule') . " "
+            __('Catalog price rule') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Catalog price rule {Rule Name/ID}')
+        ];
     }
 }

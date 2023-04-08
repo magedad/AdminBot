@@ -15,7 +15,7 @@ use Magento\Framework\UrlInterface;
 class MainSales extends Entity
 {
     public const SALES_QUERY = 'Sales';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::SALES_QUERY,
         'Sale'
     ];
@@ -41,9 +41,9 @@ class MainSales extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $salesAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $salesAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $salesAllQuery);
     }
 
@@ -55,7 +55,7 @@ class MainSales extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -66,7 +66,7 @@ class MainSales extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**

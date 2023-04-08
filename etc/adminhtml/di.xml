@@ -16,19 +16,19 @@
                     <item name="acl" xsi:type="string">Magento_Customer::group</item>
                 </item>
                 <item name="order" xsi:type="array">
-                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Order</item>
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Sales\Order</item>
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
                 </item>
                 <item name="invoice" xsi:type="array">
-                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Invoice</item>
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Sales\Invoice</item>
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
                 </item>
                 <item name="shipment" xsi:type="array">
-                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Shipment</item>
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Sales\Shipment</item>
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
                 </item>
                 <item name="creditmemo" xsi:type="array">
-                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\CreditMemo</item>
+                    <item name="class" xsi:type="string">MageDad\AdminBot\Model\Search\Sales\CreditMemo</item>
                     <item name="acl" xsi:type="string">Magento_Sales::sales</item>
                 </item>
                 <item name="page" xsi:type="array">

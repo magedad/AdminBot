@@ -76,7 +76,7 @@ class Bot
     private function getAutoReply(string $query)
     {
         foreach ($this->autoReplyEntity as $type => $object) {
-            if ($object->checkIsMyQuery($query)) {
+            if ($object->autoReplyQueryCheck($query)) {
                 $reply = $object->getReply($query);
                 if (empty($reply)) {
                     return $this->replyFormat->returnData(
@@ -195,5 +195,24 @@ class Bot
         $words = array_reduce($words, 'array_merge', []);
         asort($words);
         return $words;
+    }
+
+    /**
+     * Get Shortcuts
+     *
+     * @return array
+     */
+    public function getShortcuts(): array
+    {
+        $shortcuts = [];
+        foreach ($this->autoReplyEntity as $type => $object) {
+            $list = $object->getShortcutList();
+            if (count($list) > 0) {
+                $shortcuts[] = $object->getShortcutList();
+            }
+        }
+        $shortcuts = array_reduce($shortcuts, 'array_merge', []);
+
+        return $shortcuts;
     }
 }

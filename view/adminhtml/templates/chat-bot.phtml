@@ -21,9 +21,14 @@ use Magento\Framework\Escaper;
                 <div class="header-img">
                     <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('MageDad_AdminBot::img/bot.png')); ?>"/>
                 </div>
-                <span id="chat-head">Admin Chatbot</span>
-                <span id="chat-fullscreen-loader" class="chat-fullscreen-loader">
-                    <i class="fullscreen zmdi zmdi-window-maximize"></i>
+                <span id="chat-head"><?= /* @noEscape */ __('Admin Chatbot') ?></span>
+                <span id="chat-help" class="chat-help">
+                    <div class="admin__field-tooltip tooltip">
+                        <a href="javascript:void(0);" title="<?= /* @noEscape */ __('All shortcuts') ?>"
+                           class="admin__field-tooltip-action action-help">
+                            <span><?= /* @noEscape */ __('All shortcuts') ?></span>
+                        </a>
+                    </div>
                 </span>
             </div>
         </div>
@@ -32,7 +37,7 @@ use Magento\Framework\Escaper;
                 <div class="chat-avatar">
                     <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('MageDad_AdminBot::img/bot.png')); ?>">
                 </div>
-                <div><?= /* @noEscape */ __('Hello there, how can I help you? You need a help for?') ?></div>
+                <div><?= /* @noEscape */ __('Hi, How can I help you?') ?></div>
             </span>
             <span class="chat-msg-item">
                 <ul class="tags">
@@ -57,11 +62,15 @@ use Magento\Framework\Escaper;
     </div>
     <a id="prime" class="fab"><i class="prime zmdi zmdi-comment-outline"></i></a>
 </div>
+<div id="chatbot-shortcut-modal">
+    <div id="chatbot-shortcut-modal-content"></div>
+</div>
 <script type="text/x-magento-init">
   {
     "#md-chatbox": {
       "chatBot": {
-        "url": "<?= /* @noEscape */ $block->getUrl('adminhtml/request/index'); ?>",
+        "url": "<?= /* @noEscape */ $block->getUrl('adminhtml/index/request'); ?>",
+        "shortcutUrl": "<?= /* @noEscape */ $block->getUrl('adminhtml/index/shortcut'); ?>",
         "botImage": "<?= /* @noEscape */ $block->getViewFileUrl('MageDad_AdminBot::img/bot.png'); ?>"
       }
     }

@@ -20,7 +20,7 @@ use Magento\Framework\UrlInterface;
 class CreditMemo extends Entity
 {
     public const SHIPMENT_QUERY = 'Creditmemo';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::SHIPMENT_QUERY,
         'creditmemos' // additional serch word
     ];
@@ -52,9 +52,9 @@ class CreditMemo extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $productAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $productAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $productAllQuery) || in_array($query, $productAllQuery);
     }
 
@@ -66,7 +66,7 @@ class CreditMemo extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -77,7 +77,7 @@ class CreditMemo extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -113,5 +113,17 @@ class CreditMemo extends Entity
             '',
             __('Creditmemo') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Creditmemo {Incrment Id/Customer email/Customer Name}')
+        ];
     }
 }

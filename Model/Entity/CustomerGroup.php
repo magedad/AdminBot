@@ -19,7 +19,7 @@ use Magento\Framework\UrlInterface;
 class CustomerGroup extends Entity
 {
     public const MENU_QUERY = 'Customer Group';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::MENU_QUERY,
         'Customers Group',
         'Customers Groups'
@@ -50,9 +50,9 @@ class CustomerGroup extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $menuAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $menuAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $menuAllQuery) || in_array($query, $menuAllQuery);
     }
 
@@ -64,7 +64,7 @@ class CustomerGroup extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -75,7 +75,7 @@ class CustomerGroup extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -107,5 +107,17 @@ class CustomerGroup extends Entity
             '',
             __('Customer group'). " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Customer group {Name/Id}')
+        ];
     }
 }

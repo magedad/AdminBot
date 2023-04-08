@@ -20,13 +20,11 @@ class Product extends Entity
 {
     public const PRODUCT_QUERY = 'Product';
     public const ADD_PRODUCT_QUERY = 'Add product';
-    public const EDIT_PRODUCT_QUERY = 'Edit/View Product';
     public const SEARCH_PRODUCT_QUERY = 'Search Products';
 
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::PRODUCT_QUERY,
         self::ADD_PRODUCT_QUERY,
-        self::EDIT_PRODUCT_QUERY,
         self::SEARCH_PRODUCT_QUERY,
         'products' // additional serch word
     ];
@@ -58,9 +56,9 @@ class Product extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $productAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $productAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $productAllQuery);
     }
 
@@ -72,7 +70,7 @@ class Product extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -83,7 +81,7 @@ class Product extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -100,10 +98,6 @@ class Product extends Entity
 
         if (strtolower($query) == strtolower(self::ADD_PRODUCT_QUERY)) {
             return $this->addProduct($query);
-        }
-
-        if (strtolower($query) == strtolower(self::EDIT_PRODUCT_QUERY)) {
-            return $this->editProduct($query);
         }
 
         if (strtolower($query) == strtolower(self::SEARCH_PRODUCT_QUERY)) {
@@ -129,7 +123,6 @@ class Product extends Entity
             __('Please select relevant option.'),
             [
                 $this->returnData(__(self::ADD_PRODUCT_QUERY)),
-                $this->returnData(__(self::EDIT_PRODUCT_QUERY)),
                 $this->returnData(__(self::SEARCH_PRODUCT_QUERY)),
             ]
         );
@@ -180,22 +173,6 @@ class Product extends Entity
     }
 
     /**
-     * Edit product
-     *
-     * @param string $query
-     * @return array
-     */
-    private function editProduct(string $query)
-    {
-        return $this->returnData(
-            $this->typeCommand(__('Product {id/sku/name}')),
-            [],
-            '',
-            __('Product') . " "
-        );
-    }
-
-    /**
      * Search product
      *
      * @param string $query
@@ -207,7 +184,20 @@ class Product extends Entity
             $this->typeCommand(__('Product {name/description/sku/productId}')),
             [],
             '',
-            __('Products') . " "
+            __('Product') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Add product'),
+            __('Product {name/description/sku/productId}')
+        ];
     }
 }

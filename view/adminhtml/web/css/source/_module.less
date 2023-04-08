@@ -92,11 +92,11 @@
         border-radius: 10px;
         bottom: 20px;
         box-shadow: 1px 1px 100px 2px rgba(0, 0, 0, .22);
+        display: none;
         font-size: 12px;
         font-smoothing: antialiased;
         font-weight: 500;
         line-height: 35px;
-        opacity: 0;
         position: fixed;
         right: 85px;
         transition: all .2s ease-in-out;
@@ -104,7 +104,8 @@
         &.is-visible {
             -webkit-animation: zoomIn .2s cubic-bezier(.42, 0, .58, 1);
             animation: zoomIn .2s cubic-bezier(.42, 0, .58, 1);
-            opacity: 1;
+            display: block;
+            z-index: 998;
         }
         .chat-converse {
             background: @white-color;
@@ -131,6 +132,7 @@
                 z-index: 999;
                 a {
                     color: @a-color;
+                    width: max-content;
                     &:hover {
                         color: @a-color-hover;
                     }
@@ -190,7 +192,7 @@
                 .extra-info {
                     color: @black-color;
                     font-size: 12px;
-                    max-height: 15px;
+                    max-height: 0;
                     overflow: hidden;
                     position: relative;
                     a {
@@ -260,8 +262,18 @@
         display: none;
         float: right;
         font-size: 20px;
-        margin: 10px;
         opacity: .5;
+    }
+    .chat-help {
+        .admin__field-tooltip {
+            .admin__field-tooltip-action {
+                color: @white-color;
+            }
+            margin-top: 0;
+        }
+        cursor: pointer;
+        float: right;
+        font-size: 20px;
     }
     .status2 {
         display: block;
@@ -299,7 +311,7 @@
         margin-right: 10px;
         position: relative;
         text-align: relative;
-        width: 100%;
+        width: 90%;
     }
     select {
         border: none;
@@ -331,15 +343,23 @@
         margin-bottom: 0;
         width: 160%;
         li {
+            .extra-info {
+                cursor: initial;
+                .view-more {
+                    cursor: pointer;
+                }
+            }
             .subtitle {
                 font-size: 10px;
             }
             border-radius: 10px;
             border: 1px solid @li-color;
             color: @li-color;
+            cursor: pointer;
             display: inline-grid;
             margin: 3px;
             padding: 5px 10px;
+
         }
         a {
             color: @li-color;
@@ -408,7 +428,7 @@
     margin: 1em;
     position: fixed;
     right: 0;
-    z-index: 998;
+    z-index: 500;
 }
 
 /*Animation*/

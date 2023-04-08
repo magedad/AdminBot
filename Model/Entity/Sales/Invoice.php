@@ -18,7 +18,7 @@ use Magento\Framework\UrlInterface;
 class Invoice extends Entity
 {
     public const INVOICE_QUERY = 'Invoice';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::INVOICE_QUERY,
         'invoices' // additional serch word
     ];
@@ -44,9 +44,9 @@ class Invoice extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $invoiceAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $invoiceAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $invoiceAllQuery) || in_array($query, $invoiceAllQuery);
     }
 
@@ -58,7 +58,7 @@ class Invoice extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -69,7 +69,7 @@ class Invoice extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -105,5 +105,17 @@ class Invoice extends Entity
             '',
             __('Invoice') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Invoice {Incrment Id/Customer email/Customer Name}')
+        ];
     }
 }

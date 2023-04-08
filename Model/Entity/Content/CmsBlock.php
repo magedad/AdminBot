@@ -21,13 +21,13 @@ class CmsBlock extends Entity
     public const ADD_CMSBLOCK_QUERY = 'Add CMS Block';
     public const SEARCH_CMSBLOCK_QUERY = 'Search/Edit/View Blocks';
 
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CMSBLOCK_QUERY,
         self::ADD_CMSBLOCK_QUERY,
         self::SEARCH_CMSBLOCK_QUERY,
     ];
 
-    public const ADDITIONAL_SEARCH_WORDS = [
+    public const ADDITIONAL_AUTO_REPLY_WORDS = [
         'cms blocks',
         'blocks',
         'block',
@@ -54,11 +54,11 @@ class CmsBlock extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $cmsblockAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $cmsblockAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $cmsblockAllQuery)
-            || in_array(strtolower($query), self::ADDITIONAL_SEARCH_WORDS);
+            || in_array(strtolower($query), self::ADDITIONAL_AUTO_REPLY_WORDS);
     }
 
     /**
@@ -79,7 +79,7 @@ class CmsBlock extends Entity
      */
     public function getSearchWord()
     {
-        return array_merge(self::SEARCH_WORDS, self::ADDITIONAL_SEARCH_WORDS);
+        return array_merge(self::AUTO_REPLY_WORDS, self::ADDITIONAL_AUTO_REPLY_WORDS);
     }
 
     /**
@@ -106,7 +106,7 @@ class CmsBlock extends Entity
         }
 
         if (strtolower($query) == strtolower(self::CMSBLOCK_QUERY)
-            || in_array(strtolower($query), self::ADDITIONAL_SEARCH_WORDS)
+            || in_array(strtolower($query), self::ADDITIONAL_AUTO_REPLY_WORDS)
         ) {
             return $this->mainOption($query);
         }
@@ -171,10 +171,22 @@ class CmsBlock extends Entity
     public function searchCmsBlock(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('Cms Block {id/name/url_key/keword}')),
+            $this->typeCommand(__('Cms block {id/name/url_key/keword}')),
             [],
             '',
-            __('Cms Block ') . " "
+            __('Cms block') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Cms block {id/name/url_key/keword}')
+        ];
     }
 }

@@ -1,7 +1,8 @@
 define([
-  'jquery',
-  'jquery/ui'
-], function ($) {
+    'jquery',
+    'jquery/ui',
+    'Magento_Ui/js/modal/modal'
+], function ($, ui, modal) {
   'use strict';
 
   $.widget('mage.boties', {
@@ -25,17 +26,23 @@ define([
         var $this = this;
         var $element = this.element;
         var $options = this.options;
-        $element.find($options.chatHeaderClass).off().on("click", function() {
-            $element.find('.prime').toggleClass('zmdi-comment-outline').toggleClass('zmdi-close').toggleClass('is-active').toggleClass('is-visible');
-              $(this).toggleClass('is-float');
-              $element.find('.chat').toggleClass('is-visible');
-              $element.find('.fab').toggleClass('is-visible');
+        $element.find($options.chatHeaderClass).off().on("click", function(e) {
+            if (typeof e.target.href == 'undefined') {
+                $element.find('.prime').toggleClass('zmdi-comment-outline').toggleClass('zmdi-close').toggleClass('is-active').toggleClass('is-visible');
+                $(this).toggleClass('is-float');
+                $element.find('.chat').toggleClass('is-visible');
+                $element.find('.fab').toggleClass('is-visible');
+                $element.parent().toggleClass('is-active');
+            } else {
+                $this.showShortcuts();
+            }
         });
         $element.find('#prime').off().on("click", function() {
-          $element.find('.prime').toggleClass('zmdi-comment-outline').toggleClass('zmdi-close').toggleClass('is-active').toggleClass('is-visible');
-          $(this).toggleClass('is-float');
-          $element.find('.chat').toggleClass('is-visible');
-          $element.find('.fab').toggleClass('is-visible');
+           $element.find('.prime').toggleClass('zmdi-comment-outline').toggleClass('zmdi-close').toggleClass('is-active').toggleClass('is-visible');
+           $(this).toggleClass('is-float');
+           $element.find('.chat').toggleClass('is-visible');
+           $element.find('.fab').toggleClass('is-visible');
+           $element.parent().toggleClass('is-active');
         });
 
         $element.find('#search-type').off().on("change", function(e){
@@ -44,9 +51,10 @@ define([
                 $(this).val('');
             }
         });
-        $element.find('.view-more').off().on("click", function(e){
-             $(this).parent().toggleClass('expanded');
-             $(this).remove();
+        $element.find('.tags li').off().on("click", function(e){
+            if (typeof e.target.href == 'undefined' && !$(this).find('.extra-info').hasClass("expanded")) {
+                $(this).find('.extra-info').toggleClass('expanded');
+            }
         });
         $($options.autoSuggestClass).off().on("click", function(e){
             var msg = '<span class="chat-msg-item chat-msg-item_user">'+ $(this).text() +'</span>';
@@ -108,7 +116,7 @@ define([
 
                   if (option.extraInfo != '' && option.extraInfo instanceof Object) {
                     replay = replay + '<div class="extra-info">';
-                    replay = replay + '<a href="javascript:void(0)" class="view-more">View more</a>';
+                   // replay = replay + '<a href="javascript:void(0)" class="view-more">View more</a>';
                     $.each(option.extraInfo, function (j, value) {
                         replay = replay + '<div>'+key+': '+value+'</div>';
                     });
@@ -126,7 +134,7 @@ define([
                     }
                     if (option.extraInfo != '' && option.extraInfo instanceof Object) {
                         replay = replay + '<div class="extra-info">';
-                        replay = replay + '<a href="javascript:void(0)" class="view-more">View more</a>';
+                        //replay = replay + '<a href="javascript:void(0)" class="view-more">View more</a>';
                         $.each(option.extraInfo, function (key, value) {
                             replay = replay + '<div>'+key+': '+value+'</div>';
                         });
@@ -148,8 +156,37 @@ define([
 
         $element.find(".chat-converse").scrollTop($(".chat-converse")[0].scrollHeight);
         this._initiateChatBot();
-    }
+    },
 
+    showShortcuts: function()
+    {
+      $.ajax({
+          type: 'GET',
+          url: this.options.shortcutUrl,
+          showLoader: true
+      })
+      .done(function(result) {
+          var options = {
+              type: 'popup',
+              title: $.mage.__('Here is the list of command for quick search in Chatbot'),
+              responsive: true,
+              innerScroll: false,
+              buttons: []
+          };
+          var popup = modal(options, $('#chatbot-shortcut-modal'));
+          var finalResult = "<ul>";
+          $.each(result, function (i, value) {
+              finalResult+="<li>"+value+"</li>";
+          })
+          finalResult+="</ul>";
+          $('#chatbot-shortcut-modal-content').html(finalResult);
+          $('#chatbot-shortcut-modal').modal('openModal');
+      })
+      .fail(function(result){
+      })
+      .always(function(_){
+      });
+    }
   });
 
   return $.mage.boties;

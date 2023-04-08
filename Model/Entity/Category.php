@@ -18,13 +18,11 @@ class Category extends Entity
 {
     public const CATEGORY_QUERY = 'Category';
     public const ADD_CATEGORY_QUERY = 'Add category';
-    public const EDIT_CATEGORY_QUERY = 'Edit/View Category';
     public const SEARCH_CATEGORY_QUERY = 'Search Categories';
 
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CATEGORY_QUERY,
         self::ADD_CATEGORY_QUERY,
-        self::EDIT_CATEGORY_QUERY,
         self::SEARCH_CATEGORY_QUERY,
         'Categories' // additional serch word
     ];
@@ -50,9 +48,9 @@ class Category extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $categoryAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $categoryAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $categoryAllQuery);
     }
 
@@ -64,7 +62,7 @@ class Category extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -75,7 +73,7 @@ class Category extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -92,10 +90,6 @@ class Category extends Entity
 
         if (strtolower($query) == strtolower(self::ADD_CATEGORY_QUERY)) {
             return $this->addCategory($query);
-        }
-
-        if (strtolower($query) == strtolower(self::EDIT_CATEGORY_QUERY)) {
-            return $this->editCategory($query);
         }
 
         if (strtolower($query) == strtolower(self::SEARCH_CATEGORY_QUERY)) {
@@ -121,7 +115,6 @@ class Category extends Entity
             __('Please select relevant option.'),
             [
                 $this->addCategory(),
-                $this->returnData(__(self::EDIT_CATEGORY_QUERY)),
                 $this->returnData(__(self::SEARCH_CATEGORY_QUERY)),
             ]
         );
@@ -155,22 +148,6 @@ class Category extends Entity
     }
 
     /**
-     * Edit category
-     *
-     * @param string $query
-     * @return array
-     */
-    private function editCategory(string $query)
-    {
-        return $this->returnData(
-            $this->typeCommand(__('Category {id/sku/name}')),
-            [],
-            '',
-            __('Category'). " "
-        );
-    }
-
-    /**
      * Search category
      *
      * @param string $query
@@ -184,5 +161,17 @@ class Category extends Entity
             '',
             __('Categories'). " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Category {name/description/sku/categoryId}')
+        ];
     }
 }

@@ -20,7 +20,7 @@ class EmailTemplates extends Entity
     public const EMAILTEMPLATES_QUERY = 'Email Template';
     public const ADD_EMAILTEMPLATES_QUERY = 'Add Email Templates';
     public const SEARCH_EMAILTEMPLATES_QUERY = 'Search Email Templates';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::EMAILTEMPLATES_QUERY,
         self::SEARCH_EMAILTEMPLATES_QUERY,
         'Email Templates', // additional serch word
@@ -47,9 +47,9 @@ class EmailTemplates extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $emailTemplateAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $emailTemplateAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $emailTemplateAllQuery) || in_array($query, $emailTemplateAllQuery);
     }
 
@@ -61,7 +61,7 @@ class EmailTemplates extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -72,7 +72,7 @@ class EmailTemplates extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -142,10 +142,22 @@ class EmailTemplates extends Entity
     private function searchEmailTemplate(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('Email Templates {Name/ID}')),
+            $this->typeCommand(__('Email template {Name/ID}')),
             [],
             '',
-            __('Email Templates') . " "
+            __('Email template') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Email template {Name/ID}')
+        ];
     }
 }

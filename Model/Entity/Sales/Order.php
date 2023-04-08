@@ -18,14 +18,23 @@ use Magento\Framework\UrlInterface;
 class Order extends Entity
 {
     public const ORDER_QUERY = 'Order';
+    public const NEW_ORDER_QUERY = 'New Order list';
     public const ADD_ORDER_QUERY = 'Add Order';
     public const SEARCH_ORDER_QUERY = 'Search Orders';
 
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::ORDER_QUERY,
         self::ADD_ORDER_QUERY,
-        self::SEARCH_ORDER_QUERY,
-        'orders' // additional serch word
+        self::SEARCH_ORDER_QUERY
+    ];
+
+    public const NO_AUTO_REPLY_QUERY = [
+        self::NEW_ORDER_QUERY,
+        'New Orders',
+        'New Order',
+        'Order list',
+        'Last Orders',
+        'orders'
     ];
 
     /**
@@ -49,9 +58,10 @@ class Order extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $orderAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $searchWords = self::AUTO_REPLY_WORDS;
+        $orderAllQuery = array_map('strtolower', $searchWords);
         return in_array(strtolower($query), $orderAllQuery) || in_array($query, $orderAllQuery);
     }
 
@@ -63,7 +73,8 @@ class Order extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        $searchWords = array_merge(self::AUTO_REPLY_WORDS, self::NO_AUTO_REPLY_QUERY);
+        return $this->checkQueryWithKeyword($searchWords, $query);
     }
 
     /**
@@ -74,7 +85,12 @@ class Order extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        $orderNoReply = array_map('strtolower', self::NO_AUTO_REPLY_QUERY);
+
+        if (in_array($query, $orderNoReply)) {
+            return $query;
+        }
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -116,6 +132,7 @@ class Order extends Entity
             __('Please select relevant option.'),
             [
                 $this->addOrder(),
+                $this->returnData(__(self::NEW_ORDER_QUERY)),
                 $this->returnData(__(self::SEARCH_ORDER_QUERY)),
             ]
         );
@@ -162,5 +179,18 @@ class Order extends Entity
             '',
             __('Orders') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Orders {Incrment Id/Order Id/Customer email/Customer Name}'),
+            __('New order')
+        ];
     }
 }

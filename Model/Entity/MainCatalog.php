@@ -11,7 +11,7 @@ namespace MageDad\AdminBot\Model\Entity;
 class MainCatalog extends Entity
 {
     public const CATALOG_QUERY = 'Catalog';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::CATALOG_QUERY
     ];
 
@@ -36,9 +36,9 @@ class MainCatalog extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $salesAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $salesAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $salesAllQuery);
     }
 
@@ -50,7 +50,7 @@ class MainCatalog extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -61,7 +61,7 @@ class MainCatalog extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -122,5 +122,16 @@ class MainCatalog extends Entity
         if ($this->authorization->isAllowed('Magento_Catalog::categories')) {
             return $this->returnData(__('Categories'));
         }
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+        ];
     }
 }

@@ -6,7 +6,7 @@
  */
 declare(strict_types=1);
 
-namespace MageDad\AdminBot\Controller\Adminhtml\Request;
+namespace MageDad\AdminBot\Controller\Adminhtml\Index;
 
 use Exception;
 use MageDad\AdminBot\Model\Bot;
@@ -20,7 +20,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\View\Result\PageFactory;
 use Psr\Log\LoggerInterface;
 
-class Index extends Action
+class Shortcut extends Action
 {
     /**
      * Constructor
@@ -56,11 +56,7 @@ class Index extends Action
     public function execute()
     {
         try {
-            if (!$this->getRequest()->getParam('isAjax')) {
-                return $this->jsonResponse([]);
-            }
-            $message = $this->getRequest()->getParam('message');
-            $response = $this->bot->getReplyForMessage(strtolower($message));
+            $response = $this->bot->getShortcuts();
             return $this->jsonResponse($response);
         } catch (LocalizedException $e) {
             return $this->jsonResponse($e->getMessage());

@@ -19,7 +19,7 @@ use Magento\Framework\UrlInterface;
 class Menu extends Entity
 {
     public const MENU_QUERY = 'Menu';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::MENU_QUERY,
         'menus'
     ];
@@ -49,9 +49,9 @@ class Menu extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $menuAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $menuAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $menuAllQuery) || in_array($query, $menuAllQuery);
     }
 
@@ -63,7 +63,7 @@ class Menu extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -74,7 +74,7 @@ class Menu extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -106,5 +106,17 @@ class Menu extends Entity
             '',
             __('Menu') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('Menu {Keyword}')
+        ];
     }
 }

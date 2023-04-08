@@ -79,7 +79,7 @@ class CustomerGroup extends DataObject
                 'type' => __('Page'),
                 'name' => $group->getCode(),
                 'extraInfo' => [],
-                'url' => $this->urlBuilder->getUrl->getUrl('customer/group/edit', ['id' => $group->getId()]),
+                'url' => $this->urlBuilder->getUrl('customer/group/edit', ['id' => $group->getId()]),
             ];
         }
         $this->setResults($result);

@@ -18,7 +18,7 @@ class URLRewrites extends Entity
     public const URLREWRITES_QUERY = 'URL Rewrite';
     public const ADD_URLREWRITES_QUERY = 'Add URL Rewrites';
     public const SEARCH_URLREWRITES_QUERY = 'Search URL Rewrites';
-    public const SEARCH_WORDS = [
+    public const AUTO_REPLY_WORDS = [
         self::URLREWRITES_QUERY,
         self::SEARCH_URLREWRITES_QUERY,
         'URL Rewrites', // additional serch word
@@ -45,9 +45,9 @@ class URLRewrites extends Entity
      * @param string $query
      * @return bool
      */
-    public function checkIsMyQuery(string $query)
+    public function autoReplyQueryCheck(string $query)
     {
-        $emailTemplateAllQuery = array_map('strtolower', self::SEARCH_WORDS);
+        $emailTemplateAllQuery = array_map('strtolower', self::AUTO_REPLY_WORDS);
         return in_array(strtolower($query), $emailTemplateAllQuery) || in_array($query, $emailTemplateAllQuery);
     }
 
@@ -59,7 +59,7 @@ class URLRewrites extends Entity
      */
     public function checkIsMyQueryWithKeyword(string $query)
     {
-        return $this->checkQueryWithKeyword(self::SEARCH_WORDS, $query);
+        return $this->checkQueryWithKeyword(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -70,7 +70,7 @@ class URLRewrites extends Entity
      */
     public function cleanQuery(string $query)
     {
-        return $this->cleanUpQuery(self::SEARCH_WORDS, $query);
+        return $this->cleanUpQuery(self::AUTO_REPLY_WORDS, $query);
     }
 
     /**
@@ -141,10 +141,22 @@ class URLRewrites extends Entity
     public function searchEmailTemplate(string $query)
     {
         return $this->returnData(
-            $this->typeCommand(__('URL Rewrites {Request Path/Target Path}')),
+            $this->typeCommand(__('URL rewrites {Request Path/Target Path}')),
             [],
             '',
-            __('URL Rewrites') . " "
+            __('URL rewrites') . " "
         );
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [
+            __('URL rewrites {Request Path/Target Path}')
+        ];
     }
 }

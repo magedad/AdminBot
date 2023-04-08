@@ -11,9 +11,18 @@ namespace MageDad\AdminBot\Model\Entity;
 use Magento\Framework\AuthorizationInterface;
 use Magento\Framework\App\ObjectManager;
 
-class Entity
+abstract class Entity
 {
-    public const SEARCH_WORDS = [];
+    public const AUTO_REPLY_WORDS = [];
+    public const NO_AUTO_REPLY_QUERY = [];
+
+    /**
+     * Auto Reply Query Check
+     *
+     * @param string $query
+     * @return mixed
+     */
+    abstract public function autoReplyQueryCheck(string $query);
 
     /**
      * Constructor
@@ -43,7 +52,6 @@ class Entity
         usort($words, function ($a, $b) {
             return strlen($b) - strlen($a);
         });
-
         foreach ($words as $key => $value) {
             $query = trim(str_replace(strtolower($value), '', strtolower($query)));
         }
@@ -60,8 +68,9 @@ class Entity
      */
     public function checkQueryWithKeyword(array $words, string $query)
     {
+        $words = array_map('strtolower', $words);
         foreach ($words as $key => $word) {
-            if (strpos(strtolower($query), strtolower($word)." ") !== false) {
+            if (strpos($query, $word) !== false) {
                 return true;
             }
         }
@@ -76,7 +85,7 @@ class Entity
      */
     public function getKeyWords()
     {
-        return static::SEARCH_WORDS;
+        return static::AUTO_REPLY_WORDS;
     }
 
     /**
@@ -126,5 +135,15 @@ class Entity
     protected function typeCommand(\Magento\Framework\Phrase $string): string
     {
         return __('Enter:')." ".$string;
+    }
+
+    /**
+     * Shortcut List
+     *
+     * @return array
+     */
+    public function getShortcutList(): array
+    {
+        return [];
     }
 }
