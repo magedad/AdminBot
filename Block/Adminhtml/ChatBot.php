@@ -11,6 +11,7 @@ namespace MageDad\AdminBot\Block\Adminhtml;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class ChatBot extends Template
 {
@@ -21,13 +22,16 @@ class ChatBot extends Template
 
     /**
      * @param Context $context
+     * @param ScopeConfigInterface $scopeConfig
      * @param array $data
      */
     public function __construct(
         Context $context,
+        ScopeConfigInterface $scopeConfig,
         array $data = []
     ) {
         $this->authorization = $context->getAuthorization();
+        $this->scopeConfig = $scopeConfig;
         parent::__construct($context, $data);
     }
 
@@ -38,7 +42,8 @@ class ChatBot extends Template
      */
     public function isAllowed()
     {
-        return $this->authorization->isAllowed('MageDad_AdminBot::chatbot_manage');
+        return $this->authorization->isAllowed('MageDad_AdminBot::chatbot_manage')
+            && $this->scopeConfig->getValue('admin_chatbot/general/active');
     }
 
     /**
