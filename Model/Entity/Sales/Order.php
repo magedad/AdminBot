@@ -25,7 +25,8 @@ class Order extends Entity
     public const AUTO_REPLY_WORDS = [
         self::ORDER_QUERY,
         self::ADD_ORDER_QUERY,
-        self::SEARCH_ORDER_QUERY
+        self::SEARCH_ORDER_QUERY,
+        'orders'
     ];
 
     public const NO_AUTO_REPLY_QUERY = [
@@ -33,8 +34,7 @@ class Order extends Entity
         'New Orders',
         'New Order',
         'Order list',
-        'Last Orders',
-        'orders'
+        'Last Orders'
     ];
 
     /**
@@ -189,8 +189,8 @@ class Order extends Entity
     public function getShortcutList(): array
     {
         return [
-            __('Orders {Incrment Id/Order Id/Customer email/Customer Name}'),
-            __('New order')
+            __('Order {Incrment Id/Order Id/Customer email/Customer Name}'),
+            __('New orders')
         ];
     }
 }

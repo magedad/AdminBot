@@ -35,7 +35,7 @@ class Customer extends Entity
         'New customer',
         'New customers',
         'Customer list',
-        'Customers list',
+        'Customers list'
     ];
 
     /**
