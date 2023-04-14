@@ -8,9 +8,11 @@ declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity;
 
+use Magento\Authorization\Model\Acl\AclRetriever;
 use Magento\Framework\AuthorizationInterface;
 use Magento\Framework\App\ObjectManager;
 
+#[\AllowDynamicProperties]
 abstract class Entity
 {
     public const AUTO_REPLY_WORDS = [];
@@ -27,11 +29,11 @@ abstract class Entity
     /**
      * Constructor
      *
-     * @param \Magento\Authorization\Model\Acl\AclRetriever|null $aclRetriever
+     * @param AclRetriever|null $aclRetriever
      * @param AuthorizationInterface|null $authorization
      */
     public function __construct(
-        \Magento\Authorization\Model\Acl\AclRetriever $aclRetriever = null,
+        AclRetriever $aclRetriever = null,
         AuthorizationInterface $authorization = null
     ) {
         $this->aclRetriever =

@@ -40,11 +40,9 @@ class CmsPage extends Entity
      * @param ReplyFormat $replyFormat
      */
     public function __construct(
-        UrlInterface $urlBuilder,
-        ReplyFormat $replyFormat
+        protected UrlInterface $urlBuilder,
+        protected ReplyFormat $replyFormat
     ) {
-        $this->urlBuilder = $urlBuilder;
-        $this->replyFormat = $replyFormat;
         parent::__construct();
     }
 

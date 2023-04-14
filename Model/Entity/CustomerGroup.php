@@ -16,6 +16,7 @@ use Magento\Framework\UrlInterface;
 /*
  * phpcs:disable Magento2.Translation.ConstantUsage
  */
+#[\AllowDynamicProperties]
 class CustomerGroup extends Entity
 {
     public const MENU_QUERY = 'Customer Group';

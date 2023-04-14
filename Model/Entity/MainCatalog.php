@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace MageDad\AdminBot\Model\Entity;
 
+#[\AllowDynamicProperties]
 class MainCatalog extends Entity
 {
     public const CATALOG_QUERY = 'Catalog';

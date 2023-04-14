@@ -16,6 +16,7 @@ use Magento\Framework\UrlInterface;
 /*
  * phpcs:disable Magento2.Translation.ConstantUsage
  */
+#[\AllowDynamicProperties]
 class Product extends Entity
 {
     public const PRODUCT_QUERY = 'Product';

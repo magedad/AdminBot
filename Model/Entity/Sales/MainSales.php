@@ -10,7 +10,6 @@ namespace MageDad\AdminBot\Model\Entity\Sales;
 
 use MageDad\AdminBot\Model\Entity\Entity;
 use MageDad\AdminBot\Model\ReplyFormat;
-use Magento\Framework\UrlInterface;
 
 class MainSales extends Entity
 {
@@ -23,15 +22,11 @@ class MainSales extends Entity
     /**
      * Constructor
      *
-     * @param UrlInterface $urlBuilder
      * @param ReplyFormat $replyFormat
      */
     public function __construct(
-        UrlInterface $urlBuilder,
-        ReplyFormat $replyFormat
+        protected ReplyFormat $replyFormat
     ) {
-        $this->urlBuilder = $urlBuilder;
-        $this->replyFormat = $replyFormat;
         parent::__construct();
     }
 

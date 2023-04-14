@@ -45,15 +45,11 @@ class Customer extends Entity
      * @param ReplyFormat $replyFormat
      */
     public function __construct(
-        TypeFactory $typeFactory,
-        ProductFactory $productFactory,
-        UrlInterface $urlBuilder,
-        ReplyFormat $replyFormat
+        protected TypeFactory $typeFactory,
+        protected ProductFactory $productFactory,
+        protected UrlInterface $urlBuilder,
+        protected ReplyFormat $replyFormat
     ) {
-        $this->productFactory = $productFactory;
-        $this->typeFactory = $typeFactory;
-        $this->urlBuilder = $urlBuilder;
-        $this->replyFormat = $replyFormat;
         parent::__construct();
     }
 
